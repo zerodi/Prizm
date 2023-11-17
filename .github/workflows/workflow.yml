@@ -12,14 +12,14 @@ on:
 
 jobs:
   prepare_environment:
-    uses: ./.github/workflows/common/prepare_env.yml
+    uses: ./.github/workflows/prepare_env.yml
     with:
       node_version: ${{ inputs.node_version }}
   install_dependencies:
-    uses: ./.github/workflows/common/install_deps.yml
+    uses: ./.github/workflows/install_deps.yml
     with:
       angular_version: ${{ inputs.angular_version }}
   build:
-    uses: ./.github/workflows/common/build.yml
+    uses: ./.github/workflows/build.yml
     with:
       angular_version: ${{ inputs.angular_version }}
