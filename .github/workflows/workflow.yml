@@ -16,10 +16,12 @@ jobs:
     with:
       node_version: ${{ inputs.node_version }}
   install_dependencies:
+    needs: prepare_environment
     uses: ./.github/workflows/install_deps.yml
     with:
       angular_version: ${{ inputs.angular_version }}
   build:
+    needs: [prepare_environment, install_dependencies]
     uses: ./.github/workflows/build.yml
     with:
       angular_version: ${{ inputs.angular_version }}
