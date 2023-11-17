@@ -1,0 +1,25 @@
+name: Common Workflow
+
+on:
+  workflow_call:
+    inputs:
+      node_version:
+        required: true
+        type: number
+      angular_version:
+        default: 16
+        type: number
+
+jobs:
+  prepare_environment:
+    uses: ./.github/workflows/common/prepare_env.yml
+    with:
+      node_version: ${{ inputs.node_version }}
+  install_dependencies:
+    uses: ./.github/workflows/common/install_deps.yml
+    with:
+      angular_version: ${{ inputs.angular_version }}
+  build:
+    uses: ./.github/workflows/common/build.yml
+    with:
+      angular_version: ${{ inputs.angular_version }}

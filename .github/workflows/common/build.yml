@@ -1,0 +1,36 @@
+name: Build
+
+on:
+  workflow_call:
+    inputs:
+      angular_version:
+        default: 16
+        type: number
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Increase max memory limit'
+        run: |
+          export NODE_OPTIONS="--max_old_space_size=4096"
+
+      - name: 'Set version'
+        run: npx nx generate @prizm-ui/nx-mv:apply -n v${{ inputs.angular_version }}
+
+        ### Возможно deprecated
+      #      - name: 'Set up environment variables'
+      #        if: development
+      #        run: |
+      #          latest_version=$(
+      #            npm view @prizm-ui/components dist-tags --json | jq '.ng${{ inputs.angular_version }}'
+      #          )
+      #          echo "LATEST_VERSION=${latest_version}" >> $GITHUB_ENV
+
+      ### Возможно deprecated
+      #      - name: 'Update versions'
+      #        if: development
+      #        run: npx nx generate @prizm-ui/nx-plugin:update-version --updateInDependencies true --newVersion="3.*.*-v1.up" --all --currentVersion="${{ env.LAST_V1_VERSION }}"
+
+      - name: 'Build versions'
+        run: npx nx run-many --target=build --all --parallel --max-parallel=3

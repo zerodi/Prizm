@@ -1,0 +1,39 @@
+name: Prepare environment
+
+on:
+  workflow_call:
+    inputs:
+      angular_version:
+        default: 16
+        type: number
+      prizm_version:
+        required: true
+        type: string
+
+jobs:
+  install_dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - run: cd dist/libs/components && npm publish --tag ng${{ inputs.angular_version }} --access public --verbose || exit_code=0
+      - run: cd dist/libs/i18n && npm publish --tag ng${{ inputs.angular_version }} --access public --verbose || exit_code=0
+      - run: cd dist/libs/helpers && npm publish --tag ng${{ inputs.angular_version }} --access public --verbose || exit_code=0
+      - run: cd dist/libs/core && npm publish --tag ng${{ inputs.angular_version }} --access public --verbose || exit_code=0
+      - run: cd dist/libs/theme && npm publish --tag ng${{ inputs.angular_version }} --access public --verbose || exit_code=0
+      - run: cd dist/libs/icons/base && npm publish --tag ng${{ inputs.angular_version }} --access public --verbose || exit_code=0
+      - run: cd dist/libs/icons/flags && npm publish --tag ng${{ inputs.angular_version }} --access public --verbose || exit_code=0
+      - run: cd dist/libs/plugin && npm publish --tag ng${{ inputs.angular_version }} --access public --verbose || exit_code=0
+      - run: cd dist/libs/ast && npm publish --tag ng${{ inputs.angular_version }} --access public --verbose || exit_code=0
+      - run: cd dist/libs/charts && npm publish --tag ng${{ inputs.angular_version }} --access public --verbose || exit_code=0
+      - run: cd dist/libs/nxmv && npm publish --tag ng${{ inputs.angular_version }} --access public --verbose || exit_code=0
+
+      - name: 'Build doc app for firebase hosting'
+        run: npm run build:doc
+
+      - name: Deploy doc to firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_PRIZMUI }}'
+          projectId: prizmui
+          channelId: live
+          target: ${{ inputs.prizm_version }}
