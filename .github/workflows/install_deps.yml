@@ -14,8 +14,8 @@ jobs:
   install_dependencies:
     runs-on: ubuntu-latest
     env:
-      PACKAGE_JSON: package.json.ng${{ inputs.angular_version }}
-      PACKAGE_LOCK_JSON: package-lock.json.ng${{ inputs.angular_version }}
+      PACKAGE_JSON: ./package.json.ng${{ inputs.angular_version }}
+      PACKAGE_LOCK_JSON: ./package-lock.json.ng${{ inputs.angular_version }}
     steps:
       - name: Restore cache
         id: cache-restore
@@ -29,8 +29,8 @@ jobs:
 
       - name: 'Initial changes'
         run: |
-          cp -f ${{ env.PACKAGE_JSON }} package.json
-          cp -f ${{ env.PACKAGE_LOCK_JSON }} package-lock.json
+          cp -f ${{ env.PACKAGE_JSON }} ./package.json
+          cp -f ${{ env.PACKAGE_LOCK_JSON }} ./package-lock.json
 
       - name: Install dependencies
         run: npm ci --ignore-scripts
