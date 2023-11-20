@@ -15,6 +15,7 @@ on:
 
 jobs:
   build:
+    runs-on: ubuntu-latest
     env:
       PACKAGE_JSON: ./package.json.ng${{ inputs.angular_version }}
       PACKAGE_LOCK_JSON: ./package-lock.json.ng${{ inputs.angular_version }}
