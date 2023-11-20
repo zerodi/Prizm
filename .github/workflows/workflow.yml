@@ -9,19 +9,43 @@ on:
       angular_version:
         default: 16
         type: number
+      with_cache:
+        default: true
+        type: boolean
 
 jobs:
-  prepare_environment:
-    uses: ./.github/workflows/prepare_env.yml
-    with:
-      node_version: ${{ inputs.node_version }}
-  install_dependencies:
-    needs: prepare_environment
-    uses: ./.github/workflows/install_deps.yml
-    with:
-      angular_version: ${{ inputs.angular_version }}
   build:
-    needs: [prepare_environment, install_dependencies]
-    uses: ./.github/workflows/build.yml
-    with:
-      angular_version: ${{ inputs.angular_version }}
+    env:
+      PACKAGE_JSON: ./package.json.ng${{ inputs.angular_version }}
+      PACKAGE_LOCK_JSON: ./package-lock.json.ng${{ inputs.angular_version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node_version }}
+      - uses: nrwl/nx-set-shas@v4
+      - name: Restore cache
+        id: cache-restore
+        if: ${{ inputs.with_cache }}
+        uses: actions/cache/restore@v3
+        with:
+          path: ./node_modules
+          key: ${{ runner.os }}-node_modules_ng${{ inputs.angular_version }}-${{ hashFiles(env.PACKAGE_LOCK_JSON) }}
+          restore-keys: ${{ runner.os }}-node_modules_ng${{ inputs.angular_version }}-
+      - name: Initial changes
+        run: |
+          cp -f ${{ env.PACKAGE_JSON }} ./package.json
+          cp -f ${{ env.PACKAGE_LOCK_JSON }} ./package-lock.json
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+      - name: Save cache
+        id: cache-save
+        uses: actions/cache/save@v3
+        if: ${{ inputs.with_cache && steps.cache-restore.outputs.cache-hit != 'true' && always() }}
+        with:
+          path: ./node_modules
+          key: ${{ steps.cache-restore.outputs.cache-primary-key }}
+      - name: Set version
+        run: npx nx generate @prizm-ui/nx-mv:apply -n v${{ inputs.angular_version }}
+      - name: Build version
+        run: npx nx run-many --target=build --all --parallel --max-parallel=3
