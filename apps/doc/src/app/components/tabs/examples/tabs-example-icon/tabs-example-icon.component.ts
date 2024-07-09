@@ -1,5 +1,12 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { PrizmTabItem } from '@prizm-ui/components';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
+import {
+  prizmIconsArrowDownBetweenLines,
+  prizmIconsArrowLeftBetweenLines,
+  prizmIconsArrowRightBetweenLines,
+  prizmIconsArrowUpBetweenLines,
+} from '@prizm-ui/icons/full/source';
 
 @Component({
   selector: 'prizm-tabs-example-icon',
@@ -10,19 +17,30 @@ import { PrizmTabItem } from '@prizm-ui/components';
 export class TabsExampleIconComponent {
   public tabs: PrizmTabItem[] = [
     {
-      icon: 'view-menu-arrow-right',
+      icon: 'arrow-right-between-lines',
     },
     {
-      icon: 'view-menu-arrow-left',
+      icon: 'arrow-left-between-lines',
     },
     {
-      icon: 'view-menu-arrow-down',
+      icon: 'arrow-down-between-lines',
       disabled: true,
     },
     {
-      icon: 'view-menu-arrow-up',
+      icon: 'arrow-up-between-lines',
     },
   ];
+
+  private readonly iconsFullRegistry = inject(PrizmIconsFullRegistry);
+
+  constructor() {
+    this.iconsFullRegistry.registerIcons(
+      prizmIconsArrowRightBetweenLines,
+      prizmIconsArrowLeftBetweenLines,
+      prizmIconsArrowDownBetweenLines,
+      prizmIconsArrowUpBetweenLines
+    );
+  }
 
   public tabCancelClick(): void {
     // do something

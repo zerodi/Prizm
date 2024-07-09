@@ -18,16 +18,28 @@
 
   <ng-template prizmDocPageTab prizmDocHost>
     <prizm-doc-demo>
-      <prizm-checkbox
-        #element
-        [prizmDocHostElement]="element"
-        [checked]="checked"
-        [disabled]="disabled"
-        [size]="size"
-        [indeterminate]="indeterminate"
-      >
-        {{ label }}
-      </prizm-checkbox>
+      <div class="box">
+        <prizm-checkbox
+          #element
+          [prizmDocHostElement]="element"
+          [checked]="checked"
+          [disabled]="disabled"
+          [size]="size"
+          [indeterminate]="indeterminate"
+        >
+          {{ label }}
+        </prizm-checkbox>
+      </div>
+      <div class="box">
+        <prizm-checkbox
+          #element
+          [prizmDocHostElement]="element"
+          [checked]="checked"
+          [disabled]="disabled"
+          [size]="size"
+          [indeterminate]="indeterminate"
+        ></prizm-checkbox>
+      </div>
     </prizm-doc-demo>
     <prizm-doc-documentation>
       <ng-template [(documentationPropertyValue)]="label" documentationPropertyMode="ng-content">
@@ -97,8 +109,8 @@
     <ol class="b-demo-steps">
       <li>
         <p>
-          Импортируйте <code>PrizmCheckboxModule</code>
-          в модуль в котором хотите использовать компоненту
+          Импортируйте <code>PrizmCheckboxComponent</code>
+          в модуль в котором хотите использовать компонент
         </p>
 
         <prizm-doc-code [code]="setupModule" filename="MyComponent.module.ts"></prizm-doc-code>

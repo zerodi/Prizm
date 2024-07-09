@@ -1,15 +1,14 @@
 import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { RawLoaderContent, TuiDocExample } from '@prizm-ui/doc';
 import {
-  IconDefs,
   PolymorphContent,
   PrizmAppearance,
   PrizmAppearanceType,
   PrizmBaseDialogContext,
-  PrizmContent,
   PrizmDialogSize,
   PrizmOverlayInsidePlacement,
   PrizmOverscrollMode,
+  PrizmScrollbarVisibility,
   PrizmSidebarOptions,
   PrizmSidebarResultDefaultType,
   PrizmSidebarService,
@@ -18,6 +17,7 @@ import {
 import { generatePolymorphVariants } from '../../../util';
 import { prizmPure } from '@prizm-ui/core';
 import { of } from 'rxjs';
+import { PRIZM_ICONS_NAMES } from '@prizm-ui/icons/base/names';
 
 @Component({
   selector: 'prizm-tooltip-example',
@@ -38,10 +38,7 @@ export class SidebarComponent {
   public hoveredChange = false;
   public focusVisibleChange = false;
 
-  iconVariants: ReadonlyArray<PolymorphContent<{ size: PrizmSize }>> = [
-    '',
-    ...IconDefs.reduce((a: any[], c) => a.concat(c.data), []),
-  ];
+  iconVariants: ReadonlyArray<PolymorphContent<{ size: PrizmSize }>> = ['', ...PRIZM_ICONS_NAMES];
   icon: PolymorphContent<{ size: PrizmSize }> = this.iconVariants[0];
   iconRight: PolymorphContent<{ size: PrizmSize }> = this.iconVariants[0];
   appearanceVariants: ReadonlyArray<PrizmAppearance> = [
@@ -52,6 +49,8 @@ export class SidebarComponent {
     'danger',
   ];
   appearance: PrizmAppearance = this.appearanceVariants[0];
+  public readonly visibilityVariants: ReadonlyArray<PrizmScrollbarVisibility> = ['auto', 'hidden', 'visible'];
+  public visibility: PrizmScrollbarVisibility = this.visibilityVariants[0];
 
   appearanceTypeVariants: ReadonlyArray<PrizmAppearanceType> = ['fill', 'outline', 'ghost'];
   appearanceType: PrizmAppearanceType = this.appearanceTypeVariants[0];
@@ -140,6 +139,7 @@ export class SidebarComponent {
         dismissible: this.dismissible,
         header: this.header,
         width: this.width,
+        scrollbarVisibility: this.visibility,
         height: this.height,
         hideFooter: this.hideFooter,
         overscroll: this.overscroll,

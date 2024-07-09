@@ -6,6 +6,7 @@
     touched: control.touched | prizmToObservable | async,
     invalid: control.invalid | prizmToObservable | async,
     required: control.required | prizmToObservable | async,
+    inputLayout: inputLayout$ | async,
     emptyLabel: emptyLabel
   } as $"
 >
@@ -43,6 +44,9 @@
           [interactive]="true"
           [disabled]="$.disabled"
           [prizmInputIconButton]="$any(clearButton)"
+          [prizmHint]="$.inputLayout | prizmPluck : ['clear']"
+          [prizmHintDirection]="'b'"
+          [prizmHintCanShow]="!hideClearButtonHint"
           (click)="onClearClick($event)"
         ></button>
 
@@ -104,8 +108,12 @@
             class="prizm-input-label-clear-btn prizm-input-button-default clear-icon"
             *ngSwitchCase="true"
             [interactive]="true"
+            [class.alone]="!showStatusButton"
             [disabled]="$.disabled"
-            [prizmInputIconButton]="$any(clearButton) ?? 'cancel-delete-content'"
+            [prizmInputIconButton]="$any(clearButton) ?? 'delete-content'"
+            [prizmHint]="$.inputLayout | prizmPluck : ['clear']"
+            [prizmHintDirection]="'b'"
+            [prizmHintCanShow]="!hideClearButtonHint"
             (click)="onClearClick($event)"
           ></button>
 
@@ -125,9 +133,9 @@
           #statusButton
           *ngIf="showStatusButton"
           [prizmInputIconButton]="statusIcon"
+          [interactive]="false"
           [prizmHint]="statusMessage"
           [prizmHintCanShow]="!!statusMessage"
-          [interactive]="false"
         ></button>
       </div>
 

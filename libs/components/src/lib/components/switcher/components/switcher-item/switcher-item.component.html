@@ -1,13 +1,14 @@
 <button
   class="switcher"
   *ngIf="data?.title; else iconBtn"
-  [class.switcher_active]="isActive"
   [disabled]="isDisabled"
   [icon]="$any(data?.icon)"
   [size]="size"
+  [appearanceType]="data?.appearanceType ?? 'ghost'"
+  [appearance]="data?.appearance ?? 'secondary'"
+  [class.switcher_active_disabled]="isActive && isDisabled"
+  [pseudoPressed]="isActive"
   prizmButton
-  appearanceType="ghost"
-  appearance="secondary"
 >
   {{ data?.title }}
 </button>
@@ -15,12 +16,12 @@
 <ng-template #iconBtn>
   <button
     class="switcher switcher_icon"
-    [class.switcher_active]="isActive"
+    [pseudoPressed]="isActive"
     [disabled]="isDisabled"
     [icon]="$any(data?.icon)"
     [size]="size"
+    [appearanceType]="data?.appearanceType ?? 'ghost'"
+    [appearance]="data?.appearance ?? 'secondary'"
     prizmIconButton
-    appearanceType="ghost"
-    appearance="secondary"
   ></button>
 </ng-template>

@@ -16,10 +16,10 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { PrizmOverlayOutsidePlacement } from '../../modules';
 import { BehaviorSubject, Observable, Subscription, timer } from 'rxjs';
 import { map, switchMap, takeUntil } from 'rxjs/operators';
-import { PrizmCallFuncModule, PrizmDestroyService, PrizmLetModule } from '@prizm-ui/helpers';
+import { PrizmCallFuncPipe, PrizmDestroyService, PrizmLetDirective } from '@prizm-ui/helpers';
 import { PrizmAbstractTestId } from '../../abstract/interactive';
-import { CommonModule } from '@angular/common';
-import { PrizmElementReadyModule, PrizmHintModule, PrizmLifecycleModule } from '../../directives';
+import { AsyncPipe, NgFor, NgIf, NgTemplateOutlet } from '@angular/common';
+import { PrizmElementReadyDirective, PrizmHintDirective, PrizmLifecycleDirective } from '../../directives';
 import { PrizmChipsItemComponent } from './chips-item';
 
 @Component({
@@ -37,13 +37,16 @@ import { PrizmChipsItemComponent } from './chips-item';
   ],
   standalone: true,
   imports: [
-    CommonModule,
+    NgIf,
+    NgFor,
+    NgTemplateOutlet,
+    AsyncPipe,
     PrizmChipsItemComponent,
-    PrizmCallFuncModule,
-    PrizmLifecycleModule,
-    PrizmElementReadyModule,
-    PrizmLetModule,
-    PrizmHintModule,
+    PrizmCallFuncPipe,
+    PrizmLifecycleDirective,
+    PrizmElementReadyDirective,
+    PrizmLetDirective,
+    PrizmHintDirective,
   ],
 })
 export class PrizmChipsComponent
@@ -55,7 +58,7 @@ export class PrizmChipsComponent
     this.chipsList = data;
   }
   @Input() public deletable = true;
-  @Input() public singleLine = true;
+  @Input() @HostBinding('class.single-line') public singleLine = true;
   @Input() public hintCanShow = true;
   @Input() public hintDirection: PrizmOverlayOutsidePlacement = PrizmOverlayOutsidePlacement.RIGHT;
 
@@ -167,7 +170,7 @@ export class PrizmChipsComponent
         if (result) this.overflowedChipsList$.value.add(idx);
         else this.overflowedChipsList$.value.delete(idx);
 
-        this.overflowedChipsList$.next(this.overflowedChipsList$.value);
+        this.overflowedChipsList$.next(new Set([...this.overflowedChipsList$.value]));
 
         return result;
       }),
@@ -188,5 +191,9 @@ export class PrizmChipsComponent
     timer(0).subscribe(() => {
       this.chipsList = [...this.chipsList];
     });
+  }
+
+  public trackByIdx(idx: number): number {
+    return idx;
   }
 }

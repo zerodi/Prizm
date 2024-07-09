@@ -5,6 +5,7 @@ import {
   ElementRef,
   EventEmitter,
   HostBinding,
+  inject,
   Input,
   OnChanges,
   OnDestroy,
@@ -21,6 +22,9 @@ import { prizmWatch } from '../../observables';
 import { PrizmAbstractTestId } from '../../abstract/interactive';
 import { BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import { CommonModule } from '@angular/common';
+import { PrizmIconsComponent } from '@prizm-ui/icons';
+import { PrizmIconsRegistry } from '@prizm-ui/icons/core';
+import { prizmIconsMinus, prizmIconsCheck } from '@prizm-ui/icons/base/source';
 
 @Component({
   selector: 'prizm-checkbox',
@@ -33,7 +37,7 @@ import { CommonModule } from '@angular/common';
     '[attr.tabindex]': "disabled ? null : '0'",
   },
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, PrizmIconsComponent],
 })
 export class PrizmCheckboxComponent
   extends PrizmAbstractTestId
@@ -53,6 +57,7 @@ export class PrizmCheckboxComponent
     this._disabled = coerceBooleanProperty(value);
   }
   private _disabled = false;
+  private iconsFullRegistry = inject(PrizmIconsRegistry);
 
   private _checked = false;
   get checked(): boolean {
@@ -80,6 +85,8 @@ export class PrizmCheckboxComponent
     if (this.ngControl) {
       this.ngControl.valueAccessor = this;
     }
+
+    this.iconsFullRegistry.registerIcons(prizmIconsMinus, prizmIconsCheck);
   }
 
   ngOnInit(): void {

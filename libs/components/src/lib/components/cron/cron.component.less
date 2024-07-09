@@ -1,12 +1,24 @@
-@import '../../../styles/ui-local';
+@import '../../../styles/ui-local.less';
+
+:host {
+  color: var(--prizm-text-icon-secondary);
+}
 
 .block {
-  border: 1px solid var(--prizm-border-widget);
+  border: 1px solid var(--prizm-background-stroke);
   border-radius: 2px;
   padding: 6px 0;
 
   width: var(--prizm-cron-width, 642px);
   min-height: var(--prizm-cron-min-height, 952px);
+}
+
+.cron-title {
+  max-width: 280px;
+  margin-right: 1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .inner-block {
@@ -38,11 +50,12 @@
   &.title {
     align-items: center;
     justify-content: space-between;
+    color: var(--prizm-text-icon-primary);
   }
 }
 
 .border-bottom {
-  border-bottom: 1px solid var(--prizm-border-widget);
+  border-bottom: 1px solid var(--prizm-background-stroke);
 }
 
 .sub-pages {
@@ -51,15 +64,14 @@
   padding-top: 16px;
 }
 
-.copy-icon {
-  color: var(--prizm-border-widget);
-  cursor: pointer;
-}
-
 .submit-block {
   display: flex;
   align-items: center;
   gap: 8px;
+
+  &__input {
+    width: 230px;
+  }
 }
 
 :host {

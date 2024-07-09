@@ -3,14 +3,13 @@
   #prizmDropdownHostComponent
   [style.--prizm-dropdown-host-width]="'100%'"
   [canOpen]="!disabled"
-  [prizmDropdownHost]="layoutComponent.el.nativeElement"
+  [prizmDropdownHost]="layoutComponent?.el?.nativeElement"
   [content]="$any(getTemplate(dropdownTimeTemplate, dropdownDateTemplate))"
   [prizmDropdownHostWidth]="openTimeTemplate ? '100%' : 'auto'"
   [isOpen]="!disabled && (openTimeTemplate || open)"
   [closeByEsc]="true"
   (isOpenChange)="onOpenChange($event); $event && prizmDropdownHostComponent.reCalculatePositions()"
 >
-  <ng-template prizmInputStatusText>Ошибка! Неправильный формат</ng-template>
   <div
     class="multiple-input-box"
     #focusableElementRef="prizmInputZone"
@@ -20,6 +19,7 @@
     <input
       class="input-main"
       #fe="prizmInputInZone"
+      #maskDirectiveDate="mask"
       [class.show-placeholder]="
         (empty | async) && (disabled || (focusableElementRef.focused$ | async) !== true)
       "
@@ -36,6 +36,7 @@
       [ngModelOptions]="{ standalone: true }"
       (click)="referFocusToMain(!computedDateValue())"
       (ngModelChange)="onDateValueChange($event)"
+      (updateNativeValue)="maskDirectiveDate.writeValue($event)"
       style="padding: 0"
       prizmInput
       prizmInputInZone
@@ -43,6 +44,7 @@
     <input
       class="input-time"
       #element
+      #maskDirectiveTime="mask"
       [mask]="timeMaskOptions"
       [clearIfNotMatch]="false"
       [dropSpecialCharacters]="false"
@@ -54,6 +56,7 @@
       [maxLength]="timeMaskOptions.length + 1"
       [maxSize]="timeMaskOptions.length"
       (ngModelChange)="onTimeValueChange($event)"
+      (updateNativeValue)="maskDirectiveTime.writeValue($event)"
       style="padding: 0"
       prizmInput
       prizmInputInZone
@@ -68,13 +71,13 @@
     [interactive]="true"
     [disabled]="disabled"
     (click)="openDateDropdown(!open)"
-    prizmInputIconButton="date-calendar-blank"
+    prizmInputIconButton="calendar-blank"
   ></button>
   <button
     [disabled]="disabled"
     [interactive]="true"
     (click)="openTimeDropdown(!openTimeTemplate)"
-    prizmInputIconButton="date-clock"
+    prizmInputIconButton="clock"
   ></button>
   <ng-container *ngFor="let button of rightButtons$ | async" [ngTemplateOutlet]="button.template">
   </ng-container>
@@ -104,16 +107,17 @@
     prizmLifecycle
   >
     <ng-container>
-      <div
-        class="time-item"
+      <prizm-listing-item
         *ngFor="let item of timeItems; let idx = index"
-        [class.selected]="value?.[1] && item.isSameTime($any(value?.[1]))"
+        [selected]="value?.[1] && item.isSameTime($any(value?.[1]))"
         (click)="$event.stopPropagation(); onTimeMenuClick(item, $event)"
       >
-        <span class="text">
-          {{ item }}
-        </span>
-      </div>
+        {{ item }}
+      </prizm-listing-item>
     </ng-container>
   </prizm-data-list>
+</ng-template>
+
+<ng-template [enable]="!!ngControl.errors?.requiredPattern" prizmInputStatusText status="danger">
+  {{ dictionary$ | async | prizmPluck : 'wrongFormat' }}
 </ng-template>

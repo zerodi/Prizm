@@ -5,6 +5,14 @@
   "sourceRoot": "apps/doc/src",
   "prefix": "prizm",
   "targets": {
+    "deploy": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "commands": ["firebase deploy --only hosting:main"],
+        "parallel": false
+      }
+    },
     "build": {
       "executor": "@angular-builders/custom-webpack:browser",
       "outputs": ["{options.outputPath}"],
@@ -28,22 +36,34 @@
           },
           {
             "glob": "**/*",
-            "input": "libs/icons/base/src/styles/icons",
-            "output": "assets/prizm-icons/fonts"
+            "input": "libs/icons/base/src/styles/icons-base",
+            "output": "assets/prizm/icons/base"
+          },
+          {
+            "glob": "**/*",
+            "input": "libs/icons/base/src/styles/icons-full",
+            "output": "assets/prizm/icons/full"
           }
         ],
         "styles": [
           "apps/doc/src/styles.less",
           "node_modules/@taiga-ui/core/styles/taiga-ui-theme.less",
           "node_modules/@taiga-ui/core/styles/taiga-ui-fonts.less",
+
           "libs/components/src/styles/styles.less",
           "libs/theme/src/styles/styles.less",
           "libs/icons/flags/src/styles/styles.less",
           "libs/components/src/styles/icons/icons.less",
           "libs/components/src/styles/icons-16/icons-16.less",
+          "libs/icons/base/src/styles/styles.less",
+          "libs/icons/base/src/styles/icons-base/prizm-base-icons.css",
+          "libs/icons/base/src/styles/icons-base/prizm-base-icons-location.css",
+
+          "libs/icons/base/src/styles/icons-full/prizm-full-icons.css",
+          "libs/icons/base/src/styles/icons-full/prizm-full-icons-location.css",
+
           "node_modules/prismjs/themes/prism-okaidia.css",
-          "node_modules/prismjs/plugins/line-numbers/prism-line-numbers.css",
-          "libs/icons/base/src/styles/styles.less"
+          "node_modules/prismjs/plugins/line-numbers/prism-line-numbers.css"
         ],
         "scripts": [
           "node_modules/marked/bin/marked.js",
@@ -63,7 +83,7 @@
             {
               "type": "initial",
               "maximumWarning": "500kb",
-              "maximumError": "5mb"
+              "maximumError": "6mb"
             },
             {
               "type": "anyComponentStyle",
@@ -105,17 +125,17 @@
     "extract-i18n": {
       "executor": "@angular-devkit/build-angular:extract-i18n",
       "options": {
-        "browserTarget": "doc:build"
+        "buildTarget": "doc:build"
       }
     },
     "lint": {
-      "executor": "@nrwl/linter:eslint",
+      "executor": "@nx/linter:eslint",
       "options": {
         "lintFilePatterns": ["apps/doc/src/**/*.ts", "apps/doc/src/**/*.html"]
       }
     },
     "test": {
-      "executor": "@nrwl/jest:jest",
+      "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/apps/doc"],
       "options": {
         "jestConfig": "apps/doc/jest.config.ts",

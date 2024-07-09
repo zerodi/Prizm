@@ -14,7 +14,7 @@ import {
   Output,
   Self,
 } from '@angular/core';
-import { NgControl, NgModel, UntypedFormControl, Validators } from '@angular/forms';
+import { NgControl, NgModel, Validators } from '@angular/forms';
 import { PrizmDestroyService } from '@prizm-ui/helpers';
 import { takeUntil, tap } from 'rxjs/operators';
 import { PrizmInputControl } from '../common/base/input-control.class';
@@ -73,6 +73,10 @@ export class PrizmInputTextComponent<VALUE extends string | number | null = stri
 
   private _disabled = false;
 
+  @Input()
+  @HostBinding('attr.placeholder')
+  placeholder?: string;
+
   /**
    * @deprecated
    * Required input
@@ -87,12 +91,10 @@ export class PrizmInputTextComponent<VALUE extends string | number | null = stri
     this.stateChanges.next();
   }
 
-  override readonly testId_ = 'ui_input_text';
-
+  public invalid = false;
   private _required: boolean | undefined;
 
-  public invalid = false;
-
+  override readonly testId_ = 'ui_input_text';
   /**
    * Input value input
    */
@@ -132,8 +134,11 @@ export class PrizmInputTextComponent<VALUE extends string | number | null = stri
   @HostBinding('class.empty')
   public empty!: boolean;
 
-  readonly parentLayout = inject(PrizmInputLayoutComponent);
   readonly maybeMask = inject(NgxMaskDirective, {
+    optional: true,
+  }) as NgxMaskDirective;
+
+  readonly parentLayout = inject(PrizmInputLayoutComponent, {
     optional: true,
   });
   /**
@@ -179,10 +184,10 @@ export class PrizmInputTextComponent<VALUE extends string | number | null = stri
 
   private safeClearNgxMaskListener() {
     // TODO: fix ngxMask bug when clear value
-    this.parentLayout.clear
+    this.parentLayout?.clear
       .pipe(
         tap(() => {
-          this.maybeMask, this.maybeMask?.writeValue(null as any);
+          this.maybeMask?.writeValue(null as any);
         }),
         takeUntil(this.destroy)
       )
@@ -278,14 +283,10 @@ export class PrizmInputTextComponent<VALUE extends string | number | null = stri
 
     this.updateValue(null as VALUE);
 
-    this.ngControl?.control?.markAsDirty();
-
     this.updateEmptyState();
     this.updateErrorState();
 
-    this.focus();
-
-    this.stateChanges.next();
+    this.markControl({ touched: true, dirty: true });
     this.onClear.emit(event);
     this.valueChanged.next('' as VALUE);
 
@@ -317,7 +318,6 @@ export class PrizmInputTextComponent<VALUE extends string | number | null = stri
   }
 
   public markAsTouched(): void {
-    if (this.ngControl?.control instanceof UntypedFormControl) this.ngControl.control.markAsTouched();
-    else this._touched = true;
+    this.markControl({ touched: true });
   }
 }

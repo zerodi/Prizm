@@ -19,7 +19,7 @@ import { prizmCoerceValue } from '../../utils/coerce-value';
 import { PrizmDocumentationPropertyType } from '../../types/pages';
 import { PrizmDocHostElementService } from '../host';
 import { PRIZM_HOST_COMPONENT_INFO_TOKEN, PrizmHostComponentInfo } from './token';
-import isEqual from 'lodash-es/isEqual';
+import { isEqual } from '@prizm-ui/helpers';
 
 const SERIALIZED_SUFFIX = `$`;
 
@@ -32,6 +32,9 @@ const SERIALIZED_SUFFIX = `$`;
 export class PrizmDocDocumentationPropertyConnectorDirective<T> implements OnInit, OnChanges {
   @Input()
   documentationPropertyName: string | null = ``;
+
+  @Input()
+  urlUpdate = true;
 
   @Input()
   documentationPropertyMode: PrizmDocumentationPropertyType = null;
@@ -71,7 +74,7 @@ export class PrizmDocDocumentationPropertyConnectorDirective<T> implements OnIni
   ) {}
 
   ngOnInit(): void {
-    this.parseParams(this.activatedRoute.snapshot.queryParams);
+    if (this.urlUpdate) this.parseParams(this.activatedRoute.snapshot.queryParams);
   }
 
   get attrName(): string {
@@ -130,7 +133,7 @@ export class PrizmDocDocumentationPropertyConnectorDirective<T> implements OnIni
   public onValueChange(value: T): void {
     this.documentationPropertyValue = value;
     this.documentationPropertyValueChange.emit(value);
-    this.setQueryParam(value);
+    if (this.urlUpdate) this.setQueryParam(value);
   }
 
   public emitEvent(event: unknown): void {

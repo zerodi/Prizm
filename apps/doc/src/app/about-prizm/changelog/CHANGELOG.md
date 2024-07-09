@@ -2,7 +2,616 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.9.0, 2.6.0, 3.5.0](https://github.com/zyfra/Prizm) (10-11-2023)
+## [4.3.5](https://github.com/zyfra/Prizm) (08-07-2024)
+
+### Bug fixes
+
+- fix(component/overlay): fix bug with memory leak #1637 #1403
+- fix(component/dropdown-host): fix bug with destroy overlay #1637 #1403
+- fix(component/hint): fix bug with destroy overlay #1637 #1403
+
+## [4.3.4](https://github.com/zyfra/Prizm) (20-06-2024)
+
+### Bug fixes
+
+- fix(components/input-icon-button): disabled button should not fire events #1823
+- fix(components/inputs): fix markup for input icon button #1529, #1672
+- fix(doc/textarea): missing border property added for textarea livedemo #1803
+
+## [4.3.3](https://github.com/zyfra/Prizm) (18-06-2024)
+
+### Bug fixes
+
+- fix(icons): incorrect icons source path fixed.
+
+## [4.3.2](https://github.com/zyfra/Prizm) (17-06-2024)
+
+### Bug fixes
+
+- fix(icons): restored icon selection-checkbox-marked-circle #1735
+- fix(components/chips): update chips on async changes #1754
+- fix(components/input-date-range): default time is set only after focus is removed #1762
+- fix(components/input-date-relative): active items not updated when value set by formControl #1685
+- fix(components/panel): set default border radius as 0px to panel #1767
+- fix(doc): version detection on doc.zyfra or prizm.site #1133
+- fix(components/input-date-time): display time 00:00 when a date is selected #1575
+- fix(components/hint): safe update overlay only when changes dependencies #1719 #716
+- fix(docs/tab): remove $any from basic example #841
+- fix(components/input-date-range): added corrector if from is more than to #1628
+- fix(components/panel): add prefix prizm to panel component #1665
+- fix(components/panel): converted panel component to standalone #1665
+- fix(components/file-upload): newly uploaded files should not overwrte existing files array #1662
+- fix(components/file-upload): multiply false paramenter works incorrect with uploading by drop #1770
+- fix(components/file-upload): file size text small fixes
+- fix(doc/tab): improve live demo example for counter options
+- fix(components/chips): hint appears in multiselect after deletion #1815
+- fix(doc/icons): pagination on search icon #1701
+- fix(charts/line): add missing seriesField input to Line chart #1811
+- fix(doc/line): smooth line exaple source code link fix
+
+## [4.3.1](https://github.com/zyfra/Prizm) (04-06-2024)
+
+### Bug fixes
+
+- fix(components/input-date-range): default time is set only after focus is removed #1565
+- fix(components/paginator): fixed PrizmPaginatorComponent instance was incompatible with PrizmTableDataSource.paginator property
+- fix(doc/icons): added info about lazy loader #1692
+- fix(components/chips): dots overflows chip list container #1713
+- fix(components/input-multiselect): chevron outline removed
+- fix(components/input-select): chevron outline removed
+- fix(components/dialog): some values from defaultOptions not applied to final config #1602
+- fix(components/calendar): change calendar resrtictions ux #1674
+- fix(components/input-layout): add margin bottom for label in outer inputs #1659
+- fix(components/chips): deletable chips xmark font icon replaced by base icon #1698
+
+### Refactor
+
+- refactor(components/chips): move multiply subscriptions to prizmLet
+
+## [4.3.0](https://github.com/zyfra/Prizm) (22-05-2024)
+
+### Features
+
+- feat(doc): add support for get inputs and outputs from hostDirectives #1710
+- feat(helpers): new method prizmInvertObject to invert keys and values for json object
+- feat(doc/icons): added info about enum name to copied values #1648
+- feat(chore/commitlint): support slash in checker commit messages scope
+- feat(doc/paginator): added example with i18n to change texts and tests #1605
+- feat(i18n): added access to public api internal dictionaries
+- feat(chore): improved checker for commit message with our scopes, types, and issues number #1622
+- feat(components/input-layput): add hint for input clear button #1515
+- feat(documentation/input-number): update input type for step, min, max values in input number live demo #1500
+- feat(documentation/slider): update input type for step, min, max values in slider live demo #1500
+- feat(component/navigation-menu): added scroll to navigation menu #1585
+- feat(components/table): add table size xl #1651
+- feat(components/table): add five lines support for table head
+- feat(components/chips): css variable for chips height added #1641
+- feat(component/cron): added english localization. #1480, attention, PrizmLanguageCron interface has been changed. Why we do this in ADR: #1617
+- feat(components/tooltip): tooltip close on click in showed dropdown #1704
+- feat(doc/dialog): add examples how to use custom dialog #1602
+- feat(helpers): new func prizmHasChanges to check changes in SimpleChanges
+- feat(ci): added skip library if they does not have any test
+
+### Refactor
+
+- refactor(components/tooltip): migrate to composition api instead of extend
+- refactor(components/dialog): removed injection from constructor and now defaultOptions is exported #1602
+
+### Bug fixes
+
+- fix(components/hint): switcher extra empty hint shown #1682
+- fix(doc/dialog): add dismissable prop to live demo #1551
+- fix(icons/icons-full): added skipped provider for PrizmDestroyService #1652
+- fix(components/cron): cron selected working with specified tabs #1494
+- fix(components/cron): cron months blinks on hover #1642
+- fix(components/input-select): incorrect focus work when opened by chevron click
+- fix(components/chips): default chips height changed to match the mockups #1641
+- fix(components/multiselect): correct paddings in outer multiselect #1640
+- fix(documentation/input-multi-select): page title correction for input multi-select
+- fix(component/table): sort icon replaced with button. #1486 #1720
+- fix(component/table): header width doesn't change when sorted #1561
+- fix(components/table): table head height should be 32px on each table size #1643
+- fix(component/table): table default cursour style changed
+- fix(documentation/table): filter and edit action buttons in examples replaced with buttons. #1486
+- fix(documentation/table): table track by and sort-pagination examples improvement #1655
+- fix(components/accordion): accordion hint not shown if title changed #1415
+- fix(component/dropdown-host): add initialization \_autoReposition and \_placement in input in dropdown #1596
+- fix(components/hint): switcher extra empty hint shown #1682 #1686
+- fix: add initialization \_autoReposition and \_placement in input in dropdown#1596 #1681
+- fix(components/input-number): right style on disabled mode #1644 #1645
+- fix(components/panel): panel instruments cut focus styles #1625
+- fix(components/input\*): ng100 error for input and hint #461 #1471 #1272
+- fix(components): tests with errors for resize observer #1631
+- fix(components/input-layout-date-range): fix error with ng100 #492
+- fix(components/hint): ng100 error on first time appear #1091
+- fix(components/hint): hint sometimes does not hide #1658
+- fix(components/scrollbar): theme switching in scrollbar works incorrect #1657
+- fix: changed content width in toast #1433
+- fix(icons-loader): fix loader for lazy load #1691
+
+## [4.2.0](https://github.com/zyfra/Prizm) (17-04-2024)
+
+### Features
+
+- feat: checklist for release 4x version #1610
+- feat: checklist for release 3x version #1613
+- feat(component/cron): added custom title #1431
+- feat(charts): update colors for charts to new schema #1196
+- feat(documentation): add decimal input type to live demo documentation
+
+### Bug fixes
+
+- fix(components/input-number): manual input works incorrect when min set for input number #1580
+- fix(components/input-number) remove default title for input number #1599
+- fix(components/inputs): hint status text for required input not shown after force clear #1598
+- fix: auto deploy doc #1592
+- fix(documentation): changed filesValidationErrors type in examples and live demo #1371
+- fix(component/cron): selected working with specified tabs #1494
+- fix(documentation): typography page changed #1497 #1498
+- fix(documentation/sticky): fix scroll in sticky example #670
+- fix(component/navigation): hidden overflow for navigation titles. added hints #1510
+- fix(component/header): hidden overflow for header. added hints #1510
+- fix(component/file-upload): if the name is long it doesn't overlap upload bar. name becomes truncated. expansion remains #1541
+- fix(component/toggle): removed hover and focus if loading #1485
+- fix(documentation/card): removed shadow variant duplicate #1434
+- fix(components/paginator): fixed width of rows selector #1466
+- fix(documentation): changelog headers formatting #1499
+- fix(documentation): removed first empty string in ast code examples #1501
+- fix(documentation/checkbox): fixed description of checkbox module import #1527
+- fix(documentation/colors): remove 'v3' prefix in documentation theme colors #1496
+- fix(components/column-settings): incorrect display of one unhidden column in column settings #1036
+- fix(documentation/table): search for server sort example fixed #1107
+- fix(charts): charts tolltip background color error #1488
+- fix(charts/bar): bar chart changing postion on theme chage #1492
+- fix(charts/bar): bar chart x axis shpould be shown for both themes #1490
+- fix(charts): not all charts ascept theming #1489
+- fix(charts/pie/waterfall/radial-bar): wrong stroke color on hover in pie, waterfall and radial bar charts #1508
+- fix(documentation/scatter): points on the scatter are not completely hidden when it's hidden in legend #1493
+- fix(charts/pie): pie line style update for dark theme
+- fix(documentation/bar): incorrect examples for bar stacked and bar groupd charts #1507
+- fix(theme): remove redundant token from default theme
+- fix(charts): incorrect data colors displayed in charts #1505
+- fix(documentation/bar): correction of sctacked example code
+- fix(documentation/pie): removed extra properties from pie live demo tab
+- fix(documentation/gauge): change percent input type for live demo
+
+### Refactor
+
+- refactor(charts): replace chart base options from theming to separate object
+
+## [4.1.2](https://github.com/zyfra/Prizm) (08-04-2024)
+
+- fix(ci): remove nx cloud token
+
+## [4.1.1](https://github.com/zyfra/Prizm) (05-04-2024)
+
+### Bug fixes
+
+- fix(components/cron): switcher in cron returns incorrect value https://github.com/zyfra/Prizm/issues/1519
+- fix(components/navigation-menu): add icons, remove transformer from doc https://github.com/zyfra/Prizm/issues/1525
+- fix(components/icons): replace icons lazy loading for prizm components with targeting registry (breaking change) (our ADR: https://github.com/zyfra/Prizm/discussions/1564)
+- fix(documentation/setup): correct information about icons setup https://github.com/zyfra/Prizm/issues/1558
+- fix(components/link): removed circular dependency from prizmLink. https://github.com/zyfra/Prizm/issues/1535
+
+## [4.1.0](https://github.com/zyfra/Prizm) (25-03-2024)
+
+### Bug fixes
+
+- fix(components/navigation-menu): hint icon margins added for navigation menu https://github.com/zyfra/Prizm/issues/1329
+- fix(components/calendar): replace default 'title' attribute by prizm hint in calendar year pagination buttons https://github.com/zyfra/Prizm/issues/1457
+- fix(components/calendar-range): incorrect markup for year and month screens fix https://github.com/zyfra/Prizm/issues/1445
+- fix(components/input-layout-date-time): incorrect control markup fix https://github.com/zyfra/Prizm/issues/1242
+- fix(components/input-layout-date-time-range): incorrect control markup fix https://github.com/zyfra/Prizm/issues/1242
+- fix(components/calendar-month): incorrect control markup fix https://github.com/zyfra/Prizm/issues/1242
+- fix(components/calendar-range): single year should be highlighted in calendar range https://github.com/zyfra/Prizm/issues/1465
+- fix(components/calendar-range): single month should be highlighted in calendar range https://github.com/zyfra/Prizm/issues/1464
+- fix(components/calendar): index marker color blends with the background of the selected date https://github.com/zyfra/Prizm/issues/1461
+- fix(components/file-upload) fileupload buttons incorrect gap https://github.com/zyfra/Prizm/issues/1482
+- fix(ci): increase max memory for gitlab ci pipelines
+- fix(ci): increase max memory for github actions pipelines
+- fix(ci): fix pipelines for 4.x version to build demo doc after created pr
+
+### Features
+
+- feat(doc): stackblitz for v4 version now available https://stackblitz.com/edit/prizm-v4-demo
+- feat(icons): migrate lazy load icons functions to icons-loader
+  now you can use lazy load function separately if you don't want to load all icons to your build
+  but remember you need to inject our provider to active this mode
+  you can find [example](http://localhost:4200/components/icons#lazy) on our doc
+- feat(icons): now you can load all icons at once, we update doc
+- feat(doc/icons): added more information easy to understand
+- feat(components/breadcrumbs): change the focus to focus-visible for breadcrumbs https://github.com/zyfra/Prizm/issues/1297
+- feat(components/checkbox): change the focus to focus-visible for checkbox https://github.com/zyfra/Prizm/issues/1297
+- feat(components/radio-button): change the focus to focus-visible for radio-button https://github.com/zyfra/Prizm/issues/1297
+- feat(components/chips): change the focus to focus-visible for chips https://github.com/zyfra/Prizm/issues/1297
+- feat(components/input-icon-button): change the focus to focus-visible for input-icon-button https://github.com/zyfra/Prizm/issues/1297
+- feat(components/slider): change the focus to focus-visible for slider cnob https://github.com/zyfra/Prizm/issues/1297
+- feat(components/stepper): change the focus to focus-visible for stepper button https://github.com/zyfra/Prizm/issues/1297
+- feat(components/input-icon-button): change the focus to focus-visible for toggle https://github.com/zyfra/Prizm/issues/1297
+- feat(components/input-icon-button): change the focus to focus-visible for button https://github.com/zyfra/Prizm/issues/1297
+
+## [4.0.0](https://github.com/zyfra/Prizm) (11-03-2024)
+
+### Bug fixes
+
+- fix(doc/input-date-time): set static default time
+- fix(chore): stackblitz import style error #1209 #1410
+  @alexhawkins94 for check
+  https://stackblitz.com/edit/prizm-v3-demo-s2pfqz?file=src%2Fapp%2Fapp.component.ts
+- fix(components/date-time): time validation does not always affect control display #1419
+- fix(doc): when a hint appears, some storefront elements change theme #1407
+- fix(doc/input-date-multi): update currentIdx on changes on api page
+- fix(components/checkbox): removed unnecessary right margin for label-less checkboxes
+- fix(components/table): added hover and focus styles for cells containing `prizmInput` and `prizmInputLayout`
+- fix(components/panel): adjusted margins in `PrizmPanel` component
+- fix(components/inputs): layout update for Input Chips eliminates the need for additional margins
+- fix(components/inputs): removed default label from PrizmSelectOptions and PrizmMultiSelectOptions
+- fix(components/file-upload): `PrizmFileUploadOptions` interface updated, status names to be added via translations
+- fix(components/file-upload): added fields for file upload status translations in `PrizmLanguageFileUpload`
+- fix(i18n): added `search` field to `PrizmLanguageKit` for InputSelect and InputMultiSelect search translations
+- fix(components/input-date-time-range): afte clear time values in calendar got error #1368
+- fix(components/input-date-time): min/max does not work correctly in InputLayoutDateTime #1421
+
+### Features
+
+- feat: update tags for npm delpoy ci pipelines for v3 version (updated tags instead of latest, beta, next)
+- feat: update angular to 17 version
+- feat: update icons set
+- feat: i18n support for base input text of validation #1354 #1402
+- feat(ci): new action to deploy doc for angular with 17 version
+- feat(components/hint): add passing context as $implicit to templates #291
+- feat(components/tooltip): add passing context as $implicit to templates #291
+- feat(components/table): discuss extending hover and focus styles to other controls
+- feat(i18n): enhanced search translation support for InputSelect and InputMultiSelect
+
+### Breacking Changes
+
+#### Removed components
+
+- `input-date-time`
+- `input-date-time-range`
+- `input-time`
+- `input-date`
+- `input-month`
+- `input-month-range`
+- `input-date-range`
+- `input-date-relative`
+- `select`
+- `multi-select`
+- `carousel`
+
+These components will no longer be supported and a replacement must be found to find alternative components with input-layout.
+
+#### Theme
+
+- Legacy color tokens (v1, v2) have been completely removed. Mapping for new colors will be provided where possible. Colors without direct analogues in the new color scheme will require manual redefinition in projects.
+- Tokens with the prizm-v3 prefix have been replaced with prizm-
+
+#### Icons
+
+The `prizm-icon` component has been removed. Instead, a new set of icons has been introduced in the `prizm-icons` component, where the icons have new names. For each of the old icons, alternative names are provided. You can find a complete table of correspondence between old and new icon names at the link: https://prizm.site/components/icons/Old_Icons.
+
+The following components used the legacy icon component:
+
+- accordion
+- table
+- breadcrumbs
+- tabs
+- button
+- icon-button
+- split-button
+- primitive-spin-button
+- primitive-year-month-pagination
+- calendar-range
+- column-settings
+- toggle
+- input-select
+- input-multi-select
+  -file-upload
+- navigation-menu
+- indicator
+- input-icon-button
+- dropdown-host
+- tree
+- stepper
+- checkbox
+- tooltip
+  -paginator
+
+This means that when using the above components in your projects, you will need to either manually update the icon names to new ones, or use our service, which will automatically update the icon names to their new versions. Instructions for using this service are available at: https://prizm.site/components/icons#migrate-from-old-name.
+
+## [4.0.0-next.2](https://github.com/zyfra/Prizm) (17-01-2024)
+
+### Features
+
+- feat(doc): added ability to change current theme tokens
+- feat(theme): added export all token list with palette and base
+- feat(ci): update ci for previous versions v1-v3
+
+## [1.14.0, 2.11.0, 3.10.0](https://github.com/zyfra/Prizm) (19-01-2023)
+
+### Features
+
+- feat(doc): save current theme in local storage on change
+
+### Bug fixes
+
+- fix(theme/service): recognize current theme #1287 #1292
+- fix(components/tabs): set stacking context to isolate #1291
+- fix(components/input-text): show status on clear required fields #1284
+
+## [4.0.0-rc.1](https://github.com/zyfra/Prizm) (15-01-2024)
+
+### Features
+
+- feat(components): remove deprecation from complex modules #1271
+- feat(doc): language changer was added #1265
+- feat(doc): search by status (new|preview|deprecated) #1257
+
+### Bug fixes
+
+- fix: check box extra margin #1189 #1193
+
+### Deprecations
+
+- chore(flag-icons): deprecated flag-icons #1267
+- chore(icons): deprecated prizm-icons-svg #1266
+
+### Breacking Changes
+
+- bc(components): carousel deleted #1258
+- bc(components): remove old themes and remove v3 prefix from new theme tokens #1270
+- bc(components): removed input-month-range #1256
+- bc(components): removed input-month #1255
+- bc(components): removed input-date-time #1254
+- bc(components): removed input-date-relative #1252
+- bc(components): removed input-date-range input-date-time-range #1251
+- bc(components): removed input date #1250
+- bc(components): removed select, multiselect #1247
+- feat: add styling for table cell with prizmInput (breaking change) #1226
+
+## [1.15.1, 2.12.1, 3.11.1](https://github.com/zyfra/Prizm) (19-02-2023)
+
+### Bug fixes
+
+- fix(components/input-select) search label translation added #1323
+- fix(components/input-multiselect) search label translation added #1323
+- fix(components/input-select): extra title in input select #1286
+- fix(components/input-layout-date-time): custom error not shown for inputLayoutDateTime #185
+- fix(components/input-layout): clear button in inputs with position=center has incorrect placement #1385
+- fix(doc/inputStatusText): inputStatusText examples fixed
+- fix(components/switcher): switcher active item disabled statate colors changed #1348
+- fix(components/navigation-menu): navigation menu search error #1344
+- fix(components/navigation): navigation menu active item setter error #1213
+- fix(components/breadcrumbs): breadcrumbs force update for content projection usage #1282
+- fix(components/input-number): incorrect height of InputNumberDefaultControlsComponent #1308, #1383
+- fix(components/inputs): incorrect controls height #1179
+- fix(components/input-button): input button size set to 100% height of container
+- fix(components/input-date-time-range): incorrect injection token for date time value transformer #1364
+- fix(components/tabs): issue with close tabs logic #1360
+- fix(doc/input-mask): input mask demo placeholder property added
+- fix(doc/dropdown-host): select panel example styles fix #1283
+- fix(components/shadow): shadow enum values fix
+- fix(components/paginator): updated i18n #1390 #1391
+  !!! if you use custom i18n dictionary you can get bc (our [ADR](https://jira.zyfra.com/wiki/x/crs6Dw))
+- fix(component/tabs): error with double emitted index on close tabs #1392 #1003 #1389
+
+## [1.15.0, 2.12.0, 3.11.0](https://github.com/zyfra/Prizm) (30-01-2023)
+
+### Features
+
+- feat(components/navigation-menu): add hint to navigation menu items and titles when text overflows #1216, #1312
+- feat(components/accordion): add hint to accordion title when text overflows #1216, #1312
+
+### Bug fixes
+
+- fix(components/listing-item): listing item selected item hover #1280
+- fix(components/input-dat-relative): selected item hover #1280
+- fix(components/accordion): accordion focus shadow overlaps on hover #1116,
+- fix(components/accordion): accordion incorrect background color #1236,
+- fix(components/accordion): nested accordion button incorect behavior #1285
+- fix(components/accordion): custom title accordion example fix #1240
+
+## [1.14.0, 2.11.0, 3.10.0](https://github.com/zyfra/Prizm) (19-01-2023)
+
+### Features
+
+- feat(doc): save current theme in local storage on change
+
+### Bug fixes
+
+- fix(theme/service): recognize current theme #1287 #1292
+- fix(components/tabs): set stacking context to isolate #1291
+- fix(components/input-text): show status on clear required fields #1284
+
+## [1.13.0, 2.10.0, 3.9.0](https://github.com/zyfra/Prizm) (29-12-2023)
+
+### Features
+
+- feat(components/sticky): update on changes #1085
+- feat(component/event-zone): directive to standalone #1260 #1276
+- feat(components/input-zone): add hook on update value and fix bug #1092 #1274
+- feat: update toggle styles #1169 #1268
+- feat: navigation v3 colors #1186 #1262
+- feat(components/tab): added css variable for tab max-width #1244 #1249
+- feat(components/sidebar): added ability to control scrollbar visibility #780 #1233
+- feat(documentation): update documentation colors (use only v3) #1195 #1232
+- feat(components/textarea): show placeholder #357 #1230
+  feat(components/navigation): search lower case #1214 #1227
+- feat: update colors for shadow #1199 #1200
+
+### Bug fixes
+
+- fix: input number min/max should apply for manual input values #1237
+- fix(components/input-date-time): min max limit on first update #1263 #1273
+- fix(components/input-date-time): min max limit on first update #488 #1275
+- fix: none-status tokens updated for dark theme #1253
+- fix: artifact download folder in beta release #1229
+- fix: artifact dowload folder in next release #1228
+
+## [1.12.1, 2.9.1, 3.8.1](https://github.com/zyfra/Prizm) (27-12-2023)
+
+### Bug fixes
+
+- fix(components/navigation): extra exclamation point in navigation removed
+
+## [1.12.0, 2.9.0, 3.8.0](https://github.com/zyfra/Prizm) (20-12-2023)
+
+### Features
+
+- feat: update pipeline (cache moves to artifacts) #1217 #1201
+- feat(components/stepper): update colors for stepper #1153
+- feat(components/widget): widget colors update #1150
+- feat: (components/splitter): splitter colors update #1155
+- feat(documentation/splitter): splitter examples update #1155
+- feat(components/error-page): error page colors update #1138
+- feat(components/dialog): dialog colors update to v3 #1129
+- feat(components/confirm-dialog): dialog colors update to v3 #1129
+- feat(components/cron): colors update for cron #1124
+- feat(components/column-settings): columns settings v3 colors #1104
+- feat(components/dropdown-host): dropdownhost colors update #1137
+- feat(components/calendar): colors update to v3 #987
+- feat(components/calendar-month): colors update to v3 #987
+- feat(components/calendar-range): colors update to v3 #987
+- feat(components/InputMultiSelect): colors update to v3 #1064
+- feat(components/InputLayoutDateTime): colors update to v3 #1064
+- feat(components/InputSelect): colors update to v3 #1064
+- feat(components/InputLayoutDateTimeRange): colors update to v3 #1064
+- feat(components/InputLayoutTime): colors update to v3 #1064
+- feat(components/InputLayoutDate): colors update to v3 #1064
+- feat(components/InputLayoutMonth): colors update to v3 #1064
+- feat(components/InputLayoutMonthRange): colors update to v3 #1064
+- feat(components/InputLayoutDateRange): colors update to v3 #1064
+- feat(components/InputLayoutDateRelative): colors update to v3 #1064
+- feat(components/InputDateMulti): colors update to v3 #1064
+- feat(components/Input): colors update to v3 #1064
+- feat(components/Textarea): colors update to v3 #1064
+- feat(components/InputChips): colors update to v3 #1064
+- feat(components/InputNumber): colors update to v3 #1064
+- feat(components/InputMask): colors update to v3 #1064
+- feat(components/InputPassword): colors update to v3 #1064
+- feat(components/InputCarousel): colors update to v3 #1064
+- feat(components/data-list): v3 colors for data list component #1098
+- feat(components/table): table colors update to v3 #1093
+- feat(components/table): SearchableContentComponent became deprecated #1093
+- feat: update ci beta deploy tages #1197
+- feat(components): added empty initializer for all query list #1191
+- feat(components/toast): toast v3 colors #1177
+- feat(components/toast): toast none status appearance type added #1177
+- feat(doc/toast): toast none status example added #1177
+- feat(components/navigation-menu): navigation-menu colors update #1151
+
+### Bug fixes
+
+- fix(components/input-layout-date-time): after clear set state #1076 #1208
+- fix(components/carousel): carousel disabled buttons incorrect behavior #1146
+- fix(components/inputs): focus state not shown on inputs #1077
+- fix(components/table): fix error in DI #1141 #1207
+- fix(components/input-multi-select): fix rendered blink #1048
+- fix(components/input-select): fix but with style #946
+- fix(demo/input-date): update example #952
+- fix(components/calendar): scroll in to view in year/month pickers #760 #1198
+- fix: hide breaking in table till 4.0 #1194
+- fix(components/input-select): show placeholder #1187 #1038 #1192
+
+## [1.12.0-next.1, 2.9.0-next.1, 3.8.0-next.1](https://github.com/zyfra/Prizm) (12-12-2023)
+
+### Features
+
+- feat(components/stepper): update colors for stepper #1153
+- feat(components/widget): widget colors update #1150
+- feat: (components/splitter): splitter colors update #1155
+- feat(documentation/splitter): splitter examples update #1155
+- feat(components/error-page): error page colors update #1138
+- feat(components/dialog): dialog colors update to v3 #1129
+- feat(components/confirm-dialog): dialog colors update to v3 #1129
+- feat(components/cron): colors update for cron #1124
+- feat(components/column-settings): columns settings v3 colors #1104
+- feat(components/dropdown-host): dropdownhost colors update #1137
+- feat(components/calendar): colors update to v3 #987
+- feat(components/calendar-month): colors update to v3 #987
+- feat(components/calendar-range): colors update to v3 #987
+- feat(components/InputMultiSelect): colors update to v3 #1064
+- feat(components/InputLayoutDateTime): colors update to v3 #1064
+- feat(components/InputSelect): colors update to v3 #1064
+- feat(components/InputLayoutDateTimeRange): colors update to v3 #1064
+- feat(components/InputLayoutTime): colors update to v3 #1064
+- feat(components/InputLayoutDate): colors update to v3 #1064
+- feat(components/InputLayoutMonth): colors update to v3 #1064
+- feat(components/InputLayoutMonthRange): colors update to v3 #1064
+- feat(components/InputLayoutDateRange): colors update to v3 #1064
+- feat(components/InputLayoutDateRelative): colors update to v3 #1064
+- feat(components/InputDateMulti): colors update to v3 #1064
+- feat(components/Input): colors update to v3 #1064
+- feat(components/Textarea): colors update to v3 #1064
+- feat(components/InputChips): colors update to v3 #1064
+- feat(components/InputNumber): colors update to v3 #1064
+- feat(components/InputMask): colors update to v3 #1064
+- feat(components/InputPassword): colors update to v3 #1064
+- feat(components/InputCarousel): colors update to v3 #1064
+- feat(components/data-list): v3 colors for data list component #1098
+- feat(components/table): table colors update to v3 #1093
+- feat(components/table): SearchableContentComponent became deprecated #1093
+
+### Bug fixes
+
+- fix(components/carousel): carousel disabled buttons incorrect behavior #1146
+- fix(components/inputs): focus state not shown on inputs #1077
+
+## [1.11.0, 2.8.0, 3.7.0](https://github.com/zyfra/Prizm) (04-12-2023)
+
+### Features
+
+- feat(components/input-multi-select): added transformer support #938 [MR](https://github.com/zyfra/Prizm/pull/1113)
+- feat(icons): divided location and less #1047 [MR](https://github.com/zyfra/Prizm/pull/1114)
+- feat(components/switcher): ability to change appearance #978 [MR](https://github.com/zyfra/Prizm/pull/1097)
+- feat(documentation/theme-guide): theme guide for developers #979 [MR](https://github.com/zyfra/Prizm/pull/1060)
+
+### Bug fixes
+
+- fix(doc/dropdown-host): example with range components #893 [MR](https://github.com/zyfra/Prizm/pull/1096)
+- fix(components/file-upload): progress status translations for file upload #931 [MR](https://github.com/zyfra/Prizm/pull/1032)
+- fix(components/dropdown-host): fix close logic #1074 [MR](https://github.com/zyfra/Prizm/pull/1090)
+- fix(components/table): fix error when pass not observable value #1068 #1084 [MR](https://github.com/zyfra/Prizm/pull/1094)
+- fix(doc/input-chips): fix doc with print chips value #572 [MR](https://github.com/zyfra/Prizm/pull/1095)
+- fix(doc/dropdown-host): example with range components #893 [MR](https://github.com/zyfra/Prizm/pull/1096)
+
+### Refactor
+
+- refactor(components/file-upload): functions for file size and uploading status are moved to pipes #931 [MR](https://github.com/zyfra/Prizm/pull/1032)
+- refactor(components/file-upload): deprecated modules replaced by standalones i File Upload Component #931 [MR](https://github.com/zyfra/Prizm/pull/1032)
+- refactor(components/file-upload): translations for uploading status added [MR](https://github.com/zyfra/Prizm/pull/1032)
+- refactor(components/input-chips): changed dependencies to actual standalone
+
+## [1.10.0, 2.7.0, 3.6.0](https://github.com/zyfra/Prizm) (27-11-2023)
+
+### Features
+
+- feat: colors v3 for hint, tooltip and confirm #1035 [MR](https://github.com/zyfra/Prizm/pull/1037)
+- feat(components/listing-item): new component added [MR](https://github.com/zyfra/Prizm/pull/953)
+- feat(components/chip-item): v3 colors ans selected state for single chips [MR](https://github.com/zyfra/Prizm/pull/953)
+
+### Bug fixes
+
+- fix(components/paginator): infinite paginator page count #661 [MR](https://github.com/zyfra/Prizm/pull/914)
+- fix(components/tabs): contained tab dropdown shown incorrectly #844 [MR](https://github.com/zyfra/Prizm/pull/953)
+- fix(components/tabs): In dropdown with a list of tabs, there is no alignment to the close button #843 [MR](https://github.com/zyfra/Prizm/pull/953)
+- fix: confirm popup live demo property works incorrect #570 [MR](https://github.com/zyfra/Prizm/pull/1034)
+- chore: replaced fixed versions on patch relative #1043 [MR](https://github.com/zyfra/Prizm/pull/1043)
+- fix: invalid icon name can be set in accordion live demo #947 [MR](https://github.com/zyfra/Prizm/pull/1071)
+- fix(components/tabs): unsubscribe error #1079 #842 #1023 [MR](https://github.com/zyfra/Prizm/pull/1083)
+- fix(components/navigation): navigation extra notification for active item change #571 [MR](https://github.com/zyfra/Prizm/pull/1080)
+- fix(documentation/toggle): toggle extra notification in live demo #530 [MR](https://github.com/zyfra/Prizm/pull/1072)
+
+## [1.9.1, 2.6.1, 3.5.1](https://github.com/zyfra/Prizm) (17-11-2023)
+
+### Bug fixes
+
+- fix(components): fixed changes that caused the api to crash #1061
+- fix(components/switcher): no provider for DestroyService in switcher hint #983 #1031
+- fix(components/table): inner input without parent input-layout #1059
+
+## [1.9.0, 2.6.0, 3.5.0](https://github.com/zyfra/Prizm) (16-11-2023)
 
 ### Features
 

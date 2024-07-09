@@ -2,19 +2,20 @@ import { ChangeDetectionStrategy, Component, Inject } from '@angular/core';
 import { RawLoaderContent, TuiDocExample } from '@prizm-ui/doc';
 import {
   PolymorphContent,
+  PrizmAppearance,
+  PrizmAppearanceType,
   PrizmBaseDialogContext,
   PrizmDialogOptions,
   PrizmDialogService,
   PrizmDialogSize,
   PrizmOverlayInsidePlacement,
   PrizmOverscrollMode,
-  PrizmAppearance,
-  PrizmAppearanceType,
-  IconDefs,
+  PrizmScrollbarVisibility,
   PrizmSize,
 } from '@prizm-ui/components';
 import { generatePolymorphVariants } from '../../../util';
 import { prizmPure } from '@prizm-ui/core';
+import { PRIZM_ICONS_NAMES } from '@prizm-ui/icons/base/names';
 
 @Component({
   selector: 'prizm-dialog-example',
@@ -33,11 +34,10 @@ export class DialogExampleComponent {
   public pressedChange = false;
   public hoveredChange = false;
   public focusVisibleChange = false;
+  public readonly visibilityVariants: ReadonlyArray<PrizmScrollbarVisibility> = ['auto', 'hidden', 'visible'];
+  public visibility: PrizmScrollbarVisibility = this.visibilityVariants[0];
 
-  iconVariants: ReadonlyArray<PolymorphContent<{ size: PrizmSize }>> = [
-    '',
-    ...IconDefs.reduce((a: any[], c) => a.concat(c.data), []),
-  ];
+  iconVariants: ReadonlyArray<PolymorphContent<{ size: PrizmSize }>> = ['', ...PRIZM_ICONS_NAMES];
   icon: PolymorphContent<{ size: PrizmSize }> = this.iconVariants[0];
   iconRight: PolymorphContent<{ size: PrizmSize }> = this.iconVariants[0];
   appearanceVariants: ReadonlyArray<PrizmAppearance> = [
@@ -68,12 +68,24 @@ export class DialogExampleComponent {
   public header = 'Static_title_h3 - 16 Medium';
   public content = 'Базовый текст для диалога';
   public footer: PolymorphContent<PrizmBaseDialogContext<any, PrizmDialogOptions<any, any>>> | null = null;
+  public dismissible = true;
 
   public readonly exampleModule: RawLoaderContent = import('./examples/setup-module.md?raw');
 
   public readonly exampleBasic: TuiDocExample = {
     TypeScript: import('./examples/base/dialog-base-example.component.ts?raw'),
     HTML: import('./examples/base/dialog-base-example.component.html?raw'),
+  };
+
+  public readonly exampleCustomService: TuiDocExample = {
+    TypeScript: import('./examples/custom-service/dialog-custom-service-example.component.ts?raw'),
+    HTML: import('./examples/custom-service/dialog-custom-service-example.component.html?raw'),
+    Service: import('./examples/custom-service/my-custom-service.ts?raw'),
+  };
+
+  public readonly exampleWightOuterHeader: TuiDocExample = {
+    TypeScript: import('./examples/outher-header/dialog-outher-header-example.component.ts?raw'),
+    HTML: import('./examples/outher-header/dialog-outher-header-example.component.html?raw'),
   };
 
   public readonly exampleWithButtons: TuiDocExample = {
@@ -108,9 +120,11 @@ export class DialogExampleComponent {
         footer: this.footer,
         height: this.height,
         overscroll: this.overscroll,
+        scrollbarVisibility: this.visibility,
         position: this.position,
         closeWord: this.closeWord,
         size: this.size,
+        dismissible: this.dismissible,
       })
       .subscribe(result => console.log('result from dialog', { result }));
   }

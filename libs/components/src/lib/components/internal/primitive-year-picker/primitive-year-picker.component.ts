@@ -7,17 +7,19 @@ import { PrizmBooleanHandler } from '../../../types/handler';
 import { PRIZM_ALWAYS_FALSE_HANDLER } from '../../../constants/always-false-handler';
 import { prizmInRange } from '../../../util/math/in-range';
 import {
-  PrizmHoveredModule,
+  PrizmHoveredDirective,
   PrizmInteractiveState,
-  PrizmPressedModule,
-  PrizmRepeatTimesModule,
-  PrizmScrollIntoViewModule,
+  PrizmPressedDirective,
+  PrizmRepeatTimesDirective,
+  PrizmScrollIntoViewDirective,
 } from '../../../directives';
 import { PrizmRangeState } from '../../../@core/enums/range-state';
 import { PrizmAbstractTestId } from '../../../abstract/interactive';
-import { PrizmLetDirective, PrizmLetModule } from '@prizm-ui/helpers';
+import { PrizmLetDirective } from '@prizm-ui/helpers';
+import { BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 
 const LIMIT = 100;
+const MIN_ROW_COUNT = 5;
 const ITEMS_IN_ROW = 3;
 
 @Component({
@@ -27,11 +29,11 @@ const ITEMS_IN_ROW = 3;
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
-    PrizmHoveredModule,
-    PrizmPressedModule,
-    PrizmRepeatTimesModule,
+    PrizmHoveredDirective,
+    PrizmPressedDirective,
+    PrizmRepeatTimesDirective,
     PrizmLetDirective,
-    PrizmScrollIntoViewModule,
+    PrizmScrollIntoViewDirective,
   ],
 })
 export class PrizmPrimitiveYearPickerComponent extends PrizmAbstractTestId {
@@ -59,6 +61,17 @@ export class PrizmPrimitiveYearPickerComponent extends PrizmAbstractTestId {
   @prizmDefaultProp()
   disabledItemHandler: PrizmBooleanHandler<number> = PRIZM_ALWAYS_FALSE_HANDLER;
 
+  @Input()
+  @prizmDefaultProp()
+  rangeState: PrizmRangeState = PrizmRangeState.Single;
+
+  @Input()
+  @prizmDefaultProp()
+  set intervalSupport(value: BooleanInput) {
+    this._intervalSupport = coerceBooleanProperty(value);
+  }
+  private _intervalSupport = false;
+
   @Output()
   readonly yearClick = new EventEmitter<PrizmYear>();
 
@@ -72,7 +85,8 @@ export class PrizmPrimitiveYearPickerComponent extends PrizmAbstractTestId {
   override readonly testId_ = 'ui_primitive_year_picker';
 
   get rows(): number {
-    return Math.ceil((this.calculatedMax - this.calculatedMin) / ITEMS_IN_ROW);
+    const calculatedRows = Math.ceil((this.calculatedMax - this.calculatedMin) / ITEMS_IN_ROW);
+    return calculatedRows < MIN_ROW_COUNT ? MIN_ROW_COUNT : calculatedRows;
   }
 
   get calculatedMin(): number {
@@ -121,7 +135,7 @@ export class PrizmPrimitiveYearPickerComponent extends PrizmAbstractTestId {
   }
 
   public getItemRange(item: number): PrizmRangeState | null {
-    const { value, hoveredItem } = this;
+    const { value } = this;
 
     if (value === null) {
       return null;
@@ -131,48 +145,27 @@ export class PrizmPrimitiveYearPickerComponent extends PrizmAbstractTestId {
       return value.year === item ? PrizmRangeState.Single : null;
     }
 
-    if (
-      (value instanceof PrizmDayRange || value instanceof PrizmMonthRange) &&
-      value.isYearInRange(new PrizmYear(item))
-    ) {
+    if (this._intervalSupport) {
+      return value.from.year === item
+        ? PrizmRangeState.Start
+        : value.to.year === item
+        ? PrizmRangeState.End
+        : null;
+    }
+
+    if (this.rangeState === PrizmRangeState.Start && value.from.year === item) {
+      return PrizmRangeState.Start;
+    }
+
+    if (this.rangeState === PrizmRangeState.End && value.to.year === item) {
+      return PrizmRangeState.End;
+    }
+
+    if (value.from.yearSame(value.to) && value.from.year === item) {
       return PrizmRangeState.Single;
     }
 
-    if (
-      (value.from.year === item && !value.from.yearSame(value.to)) ||
-      (hoveredItem !== null &&
-        hoveredItem > value.from.year &&
-        value.from.year === item &&
-        value.from.yearSame(value.to)) ||
-      (hoveredItem !== null &&
-        hoveredItem === item &&
-        hoveredItem < value.from.year &&
-        value.from.yearSame(value.to))
-    ) {
-      return PrizmRangeState.Single;
-
-      // TODO add after add support intervals
-      // return PrizmRangeState.Start;
-    }
-
-    if (
-      (value.to.year === item && !value.from.yearSame(value.to)) ||
-      (hoveredItem !== null &&
-        hoveredItem < value.from.year &&
-        value.from.year === item &&
-        value.from.yearSame(value.to)) ||
-      (hoveredItem !== null &&
-        hoveredItem === item &&
-        hoveredItem > value.from.year &&
-        value.from.yearSame(value.to))
-    ) {
-      return PrizmRangeState.Single;
-
-      // TODO add after add support intervals
-      // return PrizmRangeState.End;
-    }
-
-    return value.from.yearSame(value.to) && value.from.year === item ? PrizmRangeState.Single : null;
+    return null;
   }
 
   public itemIsToday(item: number): boolean {
@@ -183,11 +176,11 @@ export class PrizmPrimitiveYearPickerComponent extends PrizmAbstractTestId {
    * not support interval
    * */
   public itemIsInterval(item: number): boolean {
-    return false;
+    return this._intervalSupport ? this.itemIsIntervalNew(item) : false;
   }
 
   /**
-   * TODO with support intervals
+   *  with support intervals
    * */
   public itemIsIntervalNew(item: number): boolean {
     const { value, hoveredItem } = this;
@@ -197,7 +190,7 @@ export class PrizmPrimitiveYearPickerComponent extends PrizmAbstractTestId {
     }
 
     if (!value.from.yearSame(value.to)) {
-      return value.from.year <= item && value.to.year > item;
+      return value.from.year <= item && value.to.year >= item;
     }
 
     if (hoveredItem === null || value.from.year === hoveredItem) {

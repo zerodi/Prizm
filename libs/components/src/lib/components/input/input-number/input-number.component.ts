@@ -3,6 +3,7 @@ import {
   ElementRef,
   EventEmitter,
   Host,
+  HostBinding,
   HostListener,
   inject,
   Input,
@@ -18,6 +19,8 @@ import { fromEvent, merge, Subject } from 'rxjs';
 import { map, takeUntil, tap, throttleTime } from 'rxjs/operators';
 import { PrizmDecimal } from '@prizm-ui/core';
 import { PrizmHintDirective } from '../../../directives';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
+import { prizmIconsMinus, prizmIconsPlus } from '@prizm-ui/icons/full/source';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -31,7 +34,7 @@ import { PrizmHintDirective } from '../../../directives';
 export class PrizmInputNumberComponent extends PrizmInputControl<number> implements OnInit {
   private hasSymbol = false;
 
-  destroy$ = inject(PrizmDestroyService);
+  readonly destroy$ = inject(PrizmDestroyService);
   public get empty() {
     return this.el.nativeElement.value == '' && !this.hasSymbol;
   }
@@ -49,8 +52,6 @@ export class PrizmInputNumberComponent extends PrizmInputControl<number> impleme
     // eslint-disable-next-line no-prototype-builtins
     return Boolean(validation && validation.hasOwnProperty('required'));
   }
-
-  readonly prizmHint_ = new PrizmHintDirective();
 
   private readonly inputHint: PrizmInputHintDirective | null = inject(PrizmInputHintDirective, {
     optional: true,
@@ -74,6 +75,14 @@ export class PrizmInputNumberComponent extends PrizmInputControl<number> impleme
   }
   public nativeElementType = 'number';
   public hasClearButton = true;
+
+  @Input()
+  @HostBinding('attr.placeholder')
+  placeholder?: string;
+
+  @Input()
+  @HostBinding('attr.title')
+  title = '';
 
   @Input() min: number | null = null;
   @Input() max: number | null = null;
@@ -109,12 +118,16 @@ export class PrizmInputNumberComponent extends PrizmInputControl<number> impleme
     this.input$$.next(data);
   }
 
+  private readonly iconsFullRegistry = inject(PrizmIconsFullRegistry);
+
   constructor(
     @Self() public readonly ngControl: NgControl,
     @Host() private readonly el: ElementRef<HTMLInputElement>
   ) {
     super();
     this.el.nativeElement.type = 'number';
+
+    this.iconsFullRegistry.registerIcons(prizmIconsMinus, prizmIconsPlus);
   }
 
   private detectSymbols(value: boolean): void {
@@ -187,8 +200,8 @@ export class PrizmInputNumberComponent extends PrizmInputControl<number> impleme
   public ngOnInit(): void {
     // TODO after fix
     // this.overrideSetValueMethod();
-    this.prizmHint_.ngOnInit();
     this.inputHint?.updateHint();
+    this.initUpdateParentOnChangeStatus();
 
     this.input$$
       .pipe(
@@ -203,7 +216,17 @@ export class PrizmInputNumberComponent extends PrizmInputControl<number> impleme
 
   public ngOnDestroy(): void {
     this.stateChanges.complete();
-    this.prizmHint_.ngOnDestroy();
+  }
+
+  private initUpdateParentOnChangeStatus() {
+    this.ngControl?.statusChanges
+      ?.pipe(
+        tap(() => {
+          this.stateChanges.next();
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe();
   }
 
   // TODO change overriding later

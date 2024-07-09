@@ -3,6 +3,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   forwardRef,
+  inject,
   Inject,
   Injector,
   Input,
@@ -23,7 +24,7 @@ import { PRIZM_ALWAYS_FALSE_HANDLER } from '../../../constants/always-false-hand
 import { PRIZM_DATE_TIME_SEPARATOR } from '../../../constants/date-time-separator';
 import { prizmDefaultProp, prizmPure } from '@prizm-ui/core';
 import { PRIZM_DATE_TIME_VALUE_TRANSFORMER } from '../../../tokens/date-inputs-value-transformers';
-import { PRIZM_DATE_TEXTS, PRIZM_TIME_TEXTS } from '../../../tokens/i18n';
+import { PRIZM_DATE_TEXTS, PRIZM_INPUT_LAYOUT_DATE_TIME, PRIZM_TIME_TEXTS } from '../../../tokens/i18n';
 import { PrizmContextWithImplicit } from '../../../types/context-with-implicit';
 import { PrizmControlValueTransformer } from '../../../types/control-value-transformer';
 import { PrizmDateMode } from '../../../types/date-mode';
@@ -36,8 +37,8 @@ import { prizmClamp } from '../../../util/math/clamp';
 import { PRIZM_DATE_RIGHT_BUTTONS } from '../../../tokens/date-extra-buttons';
 import { PrizmDateButton } from '../../../types/date-button';
 import { PRIZM_STRICT_MATCHER } from '../../../constants';
-import { filterTruthy, PrizmDestroyService } from '@prizm-ui/helpers';
-import { PrizmInputControl, PrizmInputNgControl } from '../common';
+import { filterTruthy, PrizmDestroyService, PrizmPluckPipe } from '@prizm-ui/helpers';
+import { PrizmInputControl, PrizmInputNgControl, PrizmInputStatusTextDirective } from '../common';
 import { PrizmInputZoneDirective, PrizmInputZoneModule } from '../../../directives/input-zone';
 import { debounceTime, delay, map, takeUntil } from 'rxjs/operators';
 import { PrizmLifecycleModule } from '../../../directives/lifecycle';
@@ -52,13 +53,15 @@ import { PrizmDropdownHostComponent } from '../../dropdowns/dropdown-host/dropdo
 import { PrizmInputTextModule } from '../input-text/input-text.module';
 import { PrizmMaskModule } from '../../../modules/mask/mask.module';
 import { PrizmDataListComponent } from '../../data-list/data-list.component';
-import { PrizmIconComponent } from '../../icon/icon.component';
-import { PrizmPreventDefaultModule } from '../../../directives/prevent-default/prevent-default.module';
-import { PrizmCalendarModule } from '../../calendar/calendar.module';
-import { PrizmLinkModule } from '../../link/link.module';
 import { PrizmCalendarComponent } from '../../calendar';
 import { PrizmLinkComponent } from '../../link';
 import { PrizmValueAccessorModule } from '../../../directives/value-accessor/value-accessor.module';
+import { PrizmListingItemComponent } from '../../listing-item';
+import { PrizmPreventDefaultDirective } from '../../../directives';
+import { PrizmLanguageInputLayoutDateTime } from '@prizm-ui/i18n';
+import { prizmTimeLimitWithinRange } from '../../../@core/date-time/time-limit';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
+import { prizmIconsCalendarBlank, prizmIconsClock } from '@prizm-ui/icons/full/source';
 
 @Component({
   selector: `prizm-input-layout-date-time`,
@@ -72,6 +75,7 @@ import { PrizmValueAccessorModule } from '../../../directives/value-accessor/val
     ...prizmI18nInitWithKeys({
       time: PRIZM_TIME_TEXTS,
       dateTexts: PRIZM_DATE_TEXTS,
+      inputLayoutDateTime: PRIZM_INPUT_LAYOUT_DATE_TIME,
     }),
     ...PRIZM_INPUT_DATE_TIME_PROVIDERS,
     {
@@ -84,7 +88,6 @@ import { PrizmValueAccessorModule } from '../../../directives/value-accessor/val
   ],
   standalone: true,
   imports: [
-    PrizmInputLayoutDateTimeComponent,
     PrizmDropdownHostComponent,
     PrizmInputTextModule,
     NgIf,
@@ -93,16 +96,17 @@ import { PrizmValueAccessorModule } from '../../../directives/value-accessor/val
     PrizmMaskModule,
     PrizmDataListComponent,
     PolymorphOutletDirective,
-    PrizmIconComponent,
     PrizmInputZoneModule,
     FormsModule,
     PrizmLifecycleModule,
-    PrizmPreventDefaultModule,
+    PrizmPreventDefaultDirective,
     PrizmCalendarComponent,
     PrizmLinkComponent,
     PrizmDropdownHostComponent,
     PrizmValueAccessorModule,
     PrizmInputNativeValueModule,
+    PrizmListingItemComponent,
+    PrizmPluckPipe,
   ],
 })
 export class PrizmInputLayoutDateTimeComponent
@@ -117,6 +121,9 @@ export class PrizmInputLayoutDateTimeComponent
 
   @ViewChild('focusableElementRef', { read: PrizmInputZoneDirective })
   public override readonly focusableElement?: PrizmInputZoneDirective;
+
+  @ViewChild(PrizmInputStatusTextDirective, { static: true })
+  override statusText!: PrizmInputStatusTextDirective;
 
   @Input()
   @prizmDefaultProp()
@@ -173,6 +180,9 @@ export class PrizmInputLayoutDateTimeComponent
   }
 
   public rightButtons$!: BehaviorSubject<PrizmDateButton[]>;
+
+  private readonly iconsFullRegistry = inject(PrizmIconsFullRegistry);
+
   constructor(
     @Optional() @Inject(DOCUMENT) private document: Document,
     @Inject(PRIZM_DATE_FORMAT) readonly dateFormat: PrizmDateMode,
@@ -182,12 +192,16 @@ export class PrizmInputLayoutDateTimeComponent
     injector: Injector,
     @Inject(PRIZM_DATE_TEXTS)
     readonly dateTexts$: Observable<Record<PrizmDateMode, string>>,
+    @Inject(PRIZM_INPUT_LAYOUT_DATE_TIME)
+    public readonly dictionary$: Observable<PrizmLanguageInputLayoutDateTime['inputLayoutDateTime']>,
     @Optional()
     @Inject(PRIZM_DATE_TIME_VALUE_TRANSFORMER)
     valueTransformer: PrizmControlValueTransformer<[PrizmDay | null, PrizmTime | null] | null> | null
   ) {
     super(injector, valueTransformer);
     this.extraButtonInjector = injector;
+
+    this.iconsFullRegistry.registerIcons(prizmIconsCalendarBlank, prizmIconsClock);
   }
 
   ngAfterViewInit(): void {
@@ -316,16 +330,41 @@ export class PrizmInputLayoutDateTimeComponent
   private updateWithCorrectDateAndTime(value: [PrizmDay | null, PrizmTime | null]): void {
     if (!value) return;
     let [date, time] = value;
-    // correct min max time
-    if (date)
-      date = date.dayLimit(
-        this.min instanceof PrizmDay ? this.min : this.min && this.min[0],
-        this.max instanceof PrizmDay ? this.max : this.max && this.max[0]
-      );
+    if (date && !time) time = new PrizmTime(0, 0, 0);
 
-    if (time) time = this.timeLimit([date as any, time]);
+    const dateMin = this.min instanceof PrizmDay ? this.min : this.min && this.min[0];
+    const dateMax = this.max instanceof PrizmDay ? this.max : this.max && this.max[0];
+
+    // correct min max time
+    if (date) date = date.dayLimit(dateMin, dateMax);
+
+    if (date) time = this.limitTime(date, time, dateMin, dateMax);
+
+    this.focusableElement?.updateNativeValues(
+      {
+        idx: 0,
+        value: date?.toString() ?? '',
+      },
+      {
+        idx: 1,
+        value: time?.toString() ?? '',
+      }
+    );
+
+    // force update native value
+    this.nativeValue$$.next([
+      date?.toString() ?? this.nativeValue$$.value[0],
+      time?.toString() ?? this.nativeValue$$.value[1],
+    ]);
 
     this.updateValue([date, time]);
+  }
+
+  private limitTime(date: PrizmDay, time: PrizmTime | null, dateMin: PrizmDay, dateMax: PrizmDay) {
+    const timeMin = Array.isArray(this.min) && this.min[1] ? this.min[1] : null;
+    const timeMax = Array.isArray(this.max) && this.max[1] ? this.max[1] : null;
+
+    return prizmTimeLimitWithinRange(date, time, dateMin, dateMax, timeMin, timeMax);
   }
 
   public onTimeValueChange(value: string): void {
@@ -334,6 +373,7 @@ export class PrizmInputLayoutDateTimeComponent
 
     if (!value || value.length < this.timeMaskOptions.length || this.isValueMasked(value)) {
       if (!value) this.updateValue([this.value?.[0] ?? null, null]);
+
       return;
     }
 
@@ -374,9 +414,6 @@ export class PrizmInputLayoutDateTimeComponent
   }
 
   public onDayClick(day: PrizmDay, time?: PrizmTime): void {
-    // const modifiedTime =
-    //   time ?? (this.value[1] && this.prizmClampTime(this.value[1], day)) ?? new PrizmTime(0, 0);
-    // this.updateValue([day, modifiedTime]);
     this.onDateValueChange(day.toString(this.dateFormat));
     this.open = false;
     this.changeDetectorRef.markForCheck();
@@ -398,6 +435,7 @@ export class PrizmInputLayoutDateTimeComponent
   public onOpenChange(open: boolean): void {
     this.open = open;
     this.changeDetectorRef.markForCheck();
+    if (!open) this.completeDateIfAreNotPending();
   }
 
   public override writeValue(value: [PrizmDay | null, PrizmTime | null] | null): void {
@@ -495,8 +533,9 @@ export class PrizmInputLayoutDateTimeComponent
     ev.stopImmediatePropagation();
     super.clear(ev);
     this.nativeValue$$.next(['', '']);
-    this.updateValue([null, null]);
-    this.layoutComponent.cdr.markForCheck();
+    this.updateValue(null);
+    this.markAsTouched();
+    this.stateChanges.next();
   }
 
   public referFocusToMain(referFocus = true) {

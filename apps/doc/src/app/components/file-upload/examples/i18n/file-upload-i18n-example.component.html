@@ -1,3 +1,19 @@
-<prizm-file-upload [multiple]="false" [accept]="'image/*'" [maxFilesCount]="3" [maxFileSize]="1000000">
-  Maximum image size 1MB
+<prizm-file-upload
+  [multiple]="true"
+  [accept]="acceptedTypes"
+  [progress]="$any(progress$$ | async)"
+  [maxFilesCount]="maxFiles"
+  [maxFileSize]="1000000"
+  [disabled]="disabled"
+  (filesChange)="onFilesChange($event)"
+  (filesValidationErrors)="onfilesValidationErrors($event)"
+  (filesCountError)="onFilesCountError($event)"
+  (retry)="retry($event)"
+>
+  <ng-container *prizmIfLang="'russian'; else eng">
+    Загружено {{ files.length }}/{{ maxFiles }}. {{ acceptedTypes }} размером не более 1МБ.
+  </ng-container>
+  <ng-template #eng>
+    Uploaded {{ files.length }}/{{ maxFiles }}. {{ acceptedTypes }} up to 1MB in size
+  </ng-template>
 </prizm-file-upload>

@@ -1,6 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { PrizmHandler } from '@prizm-ui/components';
 import { PRIZM_EMPTY_ARRAY } from '@prizm-ui/core';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
+import {
+  prizmIconsAlarmPlus,
+  prizmIconsShieldExclamation,
+  prizmIconsStarHalfFill,
+} from '@prizm-ui/icons/full/source';
 
 export interface TreeNode {
   readonly text: string;
@@ -27,13 +33,13 @@ export class TreeTemplateExampleComponent {
     children: [
       {
         text: 'Top level 1',
-        icon: 'account-shield-alarm',
+        icon: 'shield-exclamation',
         children: [
           {
             text: 'Another item',
             children: [
-              { text: 'Next level 1', icon: 'social-star-half' },
-              { text: 'Next level 2', icon: 'social-star-half' },
+              { text: 'Next level 1', icon: 'star-half-fill' },
+              { text: 'Next level 2', icon: 'star-half-fill' },
               { text: 'Next level 3' },
             ],
           },
@@ -42,10 +48,20 @@ export class TreeTemplateExampleComponent {
       { text: 'Top level 2' },
       {
         text: 'Top level 3',
-        children: [{ text: 'Test 1' }, { text: 'Test 2', icon: 'add-alarm' }],
+        children: [{ text: 'Test 1' }, { text: 'Test 2', icon: 'alarm-plus' }],
       },
     ],
   };
 
   readonly handler: PrizmHandler<TreeNode, readonly TreeNode[]> = item => item.children || PRIZM_EMPTY_ARRAY;
+
+  private readonly iconsFullRegistry = inject(PrizmIconsFullRegistry);
+
+  constructor() {
+    this.iconsFullRegistry.registerIcons(
+      prizmIconsShieldExclamation,
+      prizmIconsStarHalfFill,
+      prizmIconsAlarmPlus
+    );
+  }
 }

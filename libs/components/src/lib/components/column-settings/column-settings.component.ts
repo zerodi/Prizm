@@ -5,6 +5,7 @@ import {
   EventEmitter,
   Inject,
   Input,
+  OnChanges,
   Output,
   ViewChild,
 } from '@angular/core';
@@ -21,15 +22,13 @@ import { PrizmLanguageColumnSettings } from '@prizm-ui/i18n';
 import { Observable } from 'rxjs';
 import { PRIZM_COLUMN_SETTINGS } from '../../tokens';
 import { prizmI18nInitWithKey } from '../../services';
-import cloneDeep from 'lodash-es/cloneDeep';
 import { CommonModule } from '@angular/common';
-import { PrizmCardComponent, PrizmCardModule } from '../card';
-import { PrizmButtonComponent, PrizmButtonModule } from '../button';
-import { PrizmToggleComponent, PrizmToggleModule } from '../toggle';
-import { PrizmIconComponent, PrizmIconModule } from '../icon';
-import { PrizmScrollbarComponent, PrizmScrollbarModule } from '../scrollbar';
-import { PrizmLetDirective, PrizmLetModule, PrizmPluckPipe, PrizmPluckPipeModule } from '@prizm-ui/helpers';
-import { PrizmHintDirective, PrizmHintModule } from '../../directives';
+import { PrizmCardComponent } from '../card';
+import { PrizmButtonComponent } from '../button';
+import { PrizmToggleComponent } from '../toggle';
+import { PrizmScrollbarComponent } from '../scrollbar';
+import { PrizmLetDirective, PrizmPluckPipe } from '@prizm-ui/helpers';
+import { PrizmHintDirective } from '../../directives';
 import { FormsModule } from '@angular/forms';
 import { PrizmThemeModule } from '@prizm-ui/theme';
 import { PrizmColumnIconPipe } from './pipes/column-icon.pipe';
@@ -47,7 +46,6 @@ import { PrizmColumnDropListComponent } from './components/column-drop-list/colu
     PrizmButtonComponent,
     PrizmToggleComponent,
     DragDropModule,
-    PrizmIconComponent,
     PrizmScrollbarComponent,
     PrizmColumnDropListComponent,
     PrizmLetDirective,
@@ -59,14 +57,14 @@ import { PrizmColumnDropListComponent } from './components/column-drop-list/colu
   ],
   providers: [...prizmI18nInitWithKey(PRIZM_COLUMN_SETTINGS, 'columnSettings')],
 })
-export class PrizmColumnSettingsComponent extends PrizmAbstractTestId implements AfterViewInit {
+export class PrizmColumnSettingsComponent extends PrizmAbstractTestId implements AfterViewInit, OnChanges {
   @ViewChild('stickyLeftList', { read: CdkDropList }) stickyLeftList: CdkDropList | undefined;
   @ViewChild('columnList', { read: CdkDropList }) columnList: CdkDropList | undefined;
   @ViewChild('stickyRightList', { read: CdkDropList }) stickyRightList: CdkDropList | undefined;
 
   public _settings!: PrizmTableSettings;
   @Input() set settings(value: PrizmTableSettings) {
-    this._settings = cloneDeep(value);
+    this._settings = structuredClone(value);
   }
   @Input() defaultSettings: PrizmTableSettings | undefined;
   @Input() stickySettings = false;
@@ -87,6 +85,10 @@ export class PrizmColumnSettingsComponent extends PrizmAbstractTestId implements
     super();
   }
 
+  ngOnChanges(): void {
+    this.checkIsLastShown();
+  }
+
   ngAfterViewInit(): void {
     if (this.stickySettings) {
       this.connectedColumns = [this.stickyLeftList as CdkDropList, this.stickyRightList as CdkDropList];
@@ -96,7 +98,7 @@ export class PrizmColumnSettingsComponent extends PrizmAbstractTestId implements
   }
 
   public resetToDeafault(): void {
-    this._settings = cloneDeep(this.defaultSettings as PrizmTableSettings);
+    this._settings = structuredClone(this.defaultSettings as PrizmTableSettings);
     this.checkIsLastShown();
   }
 

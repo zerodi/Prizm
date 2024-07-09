@@ -3,27 +3,31 @@ import {
   ChangeDetectorRef,
   Component,
   ContentChild,
+  ElementRef,
   EventEmitter,
   Input,
   OnDestroy,
+  OnInit,
   Output,
   TemplateRef,
+  ViewChild,
+  inject,
 } from '@angular/core';
 import { PrizmAccordionContentDirective } from '../../directives/accordion-content.directive';
 import { AccordionToolsDirective } from '../../directives/accordion-tools.directive';
 import { expandAnimation } from '../../accordion.animation';
 import { Subject } from 'rxjs';
-import {
-  PolymorphContent,
-  PolymorphModule,
-  PolymorphOutletDirective,
-} from '../../../../directives/polymorph';
+import { PolymorphContent, PolymorphOutletDirective } from '../../../../directives/polymorph';
 import { PrizmAccordionItemData } from '../../model';
 import { PrizmAbstractTestId } from '../../../../abstract/interactive';
 import { BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import { CommonModule } from '@angular/common';
-import { PrizmIconModule } from '../../../icon';
 import { PrizmButtonComponent } from '../../../button';
+import { PrizmHintDirective } from '../../../../directives';
+import { prizmIsTextOverflow } from '../../../../util';
+import { PrizmIconsComponent } from '@prizm-ui/icons';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
+import { prizmIconsChevronsDoubleDown } from '@prizm-ui/icons/full/source';
 
 @Component({
   selector: 'prizm-accordion-item',
@@ -31,12 +35,24 @@ import { PrizmButtonComponent } from '../../../button';
   styleUrls: ['./accordion-item.component.less'],
   animations: [expandAnimation],
   standalone: true,
-  imports: [CommonModule, PrizmIconModule, PolymorphOutletDirective, PrizmButtonComponent],
+  imports: [
+    CommonModule,
+    PolymorphOutletDirective,
+    PrizmButtonComponent,
+    PrizmIconsComponent,
+    PrizmHintDirective,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PrizmAccordionItemComponent extends PrizmAbstractTestId implements OnDestroy {
+export class PrizmAccordionItemComponent extends PrizmAbstractTestId implements OnInit, OnDestroy {
   @Input() icon!: PolymorphContent<PrizmAccordionItemData>;
-  @Input() title: PolymorphContent<PrizmAccordionItemData> = '';
+  @Input()
+  set title(value: PolymorphContent<PrizmAccordionItemData>) {
+    this._title = value;
+    queueMicrotask(() => this.cdRef.markForCheck());
+  }
+
+  public _title: PolymorphContent<PrizmAccordionItemData> = '';
   @Input() isExpanded = false;
 
   @Input()
@@ -46,6 +62,10 @@ export class PrizmAccordionItemComponent extends PrizmAbstractTestId implements 
   set disabled(value: BooleanInput) {
     this._disabled = coerceBooleanProperty(value);
   }
+
+  @ViewChild('container', { static: true }) container!: ElementRef;
+
+  public readonly prizmIsTextOverflow = prizmIsTextOverflow;
   private _disabled = false;
 
   @Output() isExpandedChange = new EventEmitter<boolean>();
@@ -53,7 +73,7 @@ export class PrizmAccordionItemComponent extends PrizmAbstractTestId implements 
   get data() {
     return {
       icon: this.icon,
-      title: this.title,
+      title: this._title,
       isExpanded: this.isExpanded,
       disabled: this._disabled,
       focused: this.isAccordionFocused,
@@ -67,8 +87,19 @@ export class PrizmAccordionItemComponent extends PrizmAbstractTestId implements 
   @ContentChild(AccordionToolsDirective, { read: TemplateRef })
   public readonly accordionTools!: TemplateRef<AccordionToolsDirective>;
 
+  private resizeObserver!: ResizeObserver;
+
+  private readonly iconsFullRegistry = inject(PrizmIconsFullRegistry);
+
   constructor(private readonly cdRef: ChangeDetectorRef) {
     super();
+
+    this.iconsFullRegistry.registerIcons(prizmIconsChevronsDoubleDown);
+  }
+
+  public ngOnInit(): void {
+    this.resizeObserver = new ResizeObserver(() => this.cdRef.markForCheck());
+    this.resizeObserver.observe(this.container.nativeElement);
   }
 
   public toggle$: Subject<void> = new Subject<void>();
@@ -94,5 +125,6 @@ export class PrizmAccordionItemComponent extends PrizmAbstractTestId implements 
 
   public ngOnDestroy(): void {
     this.toggle$.complete();
+    this.resizeObserver.disconnect();
   }
 }

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, HostBinding, Inject, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostBinding, Inject, Input, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PRIZM_ANIMATIONS_DURATION } from '../../../tokens';
 import { PRIZM_DIALOG_CLOSE_STREAM, PRIZM_DIALOG_PROVIDERS } from './dialog-options';
@@ -15,11 +15,13 @@ import {
 import { PolymorphContent, PolymorphModule, PrizmFocusTrapModule } from '../../../directives';
 import { PrizmAbstractTestId } from '../../../abstract/interactive';
 import { CommonModule } from '@angular/common';
-import { PrizmThemeModule } from '@prizm-ui/theme';
+import { PrizmTheme, PrizmThemeModule } from '@prizm-ui/theme';
 import { PrizmOverlayModule } from '../../../modules';
 import { PrizmButtonModule } from '../../button';
 import { PrizmInputIconButtonModule } from '../../input/common/input-icon-button/input-icon-button.module';
 import { PrizmScrollbarModule } from '../../scrollbar';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
+import { prizmIconsXmark } from '@prizm-ui/icons/full/source';
 
 @Component({
   selector: 'prizm-dialog',
@@ -46,6 +48,10 @@ export class PrizmDialogComponent<O = unknown, DATA = unknown> extends PrizmAbst
 
   @Input()
   public close!: () => void;
+
+  get theme(): PrizmTheme {
+    return this.context.theme!;
+  }
 
   @HostBinding('attr.prizm-size')
   public get size(): PrizmDialogSize {
@@ -96,6 +102,8 @@ export class PrizmDialogComponent<O = unknown, DATA = unknown> extends PrizmAbst
     },
   } as const;
 
+  private readonly iconsFullRegistry = inject(PrizmIconsFullRegistry);
+
   constructor(
     @Inject(PRIZM_ANIMATIONS_DURATION) private readonly duration: number,
     @Inject(PRIZM_DIALOG_CLOSE_STREAM) readonly close$: Observable<unknown>,
@@ -105,5 +113,7 @@ export class PrizmDialogComponent<O = unknown, DATA = unknown> extends PrizmAbst
     close$.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.close();
     });
+
+    this.iconsFullRegistry.registerIcons(prizmIconsXmark);
   }
 }

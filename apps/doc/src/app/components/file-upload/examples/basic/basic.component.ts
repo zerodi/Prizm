@@ -13,13 +13,15 @@ export class PrizmFileUploadBasicExampleComponent implements OnDestroy {
   progress$$ = new BehaviorSubject<PrizmFilesProgress>({});
   files: Array<File> = [];
   disabled = false;
+  acceptedTypes = 'image/*';
+  maxFiles = 3;
 
   public onFilesChange(files: Array<File>): void {
     console.log('fileschange');
     this.files = files;
   }
 
-  public onfilesValidationErrors(errors: PrizmFileValidationErrors): void {
+  public onfilesValidationErrors(errors: { [key: string]: PrizmFileValidationErrors }): void {
     for (const filename of Object.keys(errors)) {
       this.toastService.create(JSON.stringify(errors[filename]), {
         title: `Файл ${filename} не прошел валидацию`,

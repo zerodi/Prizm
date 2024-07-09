@@ -7,6 +7,7 @@ import {
   ElementRef,
   EventEmitter,
   HostBinding,
+  Inject,
   Injector,
   Input,
   OnChanges,
@@ -14,15 +15,27 @@ import {
   Output,
   SimpleChanges,
   ViewChild,
+  inject,
 } from '@angular/core';
-import { BehaviorSubject, EMPTY, merge, Subject, timer } from 'rxjs';
+import { BehaviorSubject, EMPTY, merge, Observable, Subject, timer } from 'rxjs';
 import { PrizmInputControl } from '../base/input-control.class';
 import { PrizmInputStatusTextDirective } from '../input-status-text/input-status-text.directive';
 import { PrizmInputPosition, PrizmInputSize, PrizmInputStatus } from '../models/prizm-input.models';
 import { debounceTime, map, startWith, takeUntil, tap } from 'rxjs/operators';
-import { isPolymorphPrimitive, PolymorphComponent, PolymorphContent } from '../../../../directives/polymorph';
+import { isPolymorphPrimitive, PolymorphContent } from '../../../../directives/polymorph';
 import { Compare, filterTruthy, PrizmDestroyService, PrizmLetDirective } from '@prizm-ui/helpers';
 import { PrizmAbstractTestId } from '../../../../abstract/interactive';
+import { PrizmI18nService, prizmI18nInitWithKey } from '../../../../services';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
+import {
+  prizmIconsCircleCheckFill,
+  prizmIconsCircleInfoFill,
+  prizmIconsDeleteContent,
+  prizmIconsTempChevronsDropdownSmall,
+  prizmIconsTriangleExclamationFill,
+} from '@prizm-ui/icons/full/source';
+import { PRIZM_INPUT_LAYOUT } from '../../../../tokens';
+import { PrizmLanguageInputLayout } from '@prizm-ui/i18n';
 
 export type PrizmInputLayoutClearButtonContext = {
   clear: (event: MouseEvent) => void;
@@ -43,7 +56,11 @@ export type PrizmInputLayoutClearButtonContext = {
   host: {
     class: 'prizm-input-layout',
   },
-  providers: [PrizmDestroyService],
+  providers: [
+    PrizmDestroyService,
+    PrizmI18nService,
+    ...prizmI18nInitWithKey(PRIZM_INPUT_LAYOUT, 'inputLayout'),
+  ],
 })
 export class PrizmInputLayoutComponent
   extends PrizmAbstractTestId
@@ -62,7 +79,8 @@ export class PrizmInputLayoutComponent
 
   @Input() outer = false;
 
-  @Input() clearButton: PolymorphContent<PrizmInputLayoutClearButtonContext> = 'cancel-delete-content';
+  @Input() clearButton: PolymorphContent<PrizmInputLayoutClearButtonContext> = 'delete-content';
+  @Input() hideClearButtonHint: boolean | null = null;
 
   @Input() border = true;
   @Input() position: PrizmInputPosition = 'left';
@@ -119,7 +137,7 @@ export class PrizmInputLayoutComponent
   private readonly destroy$: PrizmDestroyService = this.injector.get(PrizmDestroyService);
 
   private foundStatusDirective!: PrizmInputStatusTextDirective;
-
+  public readonly changes$ = new Subject<void>();
   get correctedStatus() {
     return this.foundStatusDirective?.status && this.foundStatusDirective.enable
       ? this.foundStatusDirective.status
@@ -140,17 +158,33 @@ export class PrizmInputLayoutComponent
   readonly onClearClick = (event: MouseEvent) => {
     this.clear.next(event);
     this.control.clear(event);
+    this.control.stateChanges.next();
     this.actualizeStatusIcon();
   };
 
-  constructor(private readonly injector: Injector, public readonly el: ElementRef<HTMLElement>) {
+  private readonly iconsFullRegistry = inject(PrizmIconsFullRegistry);
+
+  constructor(
+    private readonly injector: Injector,
+    public readonly el: ElementRef<HTMLElement>,
+    @Inject(PRIZM_INPUT_LAYOUT)
+    public readonly inputLayout$: Observable<PrizmLanguageInputLayout['inputLayout']>
+  ) {
     super();
+
+    this.iconsFullRegistry.registerIcons(
+      prizmIconsDeleteContent,
+      prizmIconsTriangleExclamationFill,
+      prizmIconsCircleCheckFill,
+      prizmIconsCircleInfoFill,
+      prizmIconsTempChevronsDropdownSmall
+    );
   }
 
   ngOnInit(): void {
     this.control.stateChanges
       .pipe(
-        debounceTime(10),
+        debounceTime(0),
         tap(() => {
           this.actualizeStatusIcon();
           this.cdr.detectChanges();
@@ -195,6 +229,7 @@ export class PrizmInputLayoutComponent
     if (changes.status) {
       this.actualizeStatusIcon();
     }
+    this.changes$.next();
   }
 
   private actualizeStatusIcon(): void {
@@ -202,15 +237,15 @@ export class PrizmInputLayoutComponent
 
     switch (this.correctedStatus) {
       case 'warning':
-        statusIcon = 'alerts-warning';
+        statusIcon = 'triangle-exclamation-fill';
         break;
 
       case 'success':
-        statusIcon = 'success-circle-fill';
+        statusIcon = 'circle-check-fill';
         break;
 
       case 'danger':
-        statusIcon = 'alerts-info-circle-fill';
+        statusIcon = 'circle-info-fill';
         break;
 
       case 'default':
@@ -219,7 +254,7 @@ export class PrizmInputLayoutComponent
     }
 
     if (this.control.invalid) {
-      statusIcon = 'alerts-info-circle-fill';
+      statusIcon = 'circle-info-fill';
     }
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

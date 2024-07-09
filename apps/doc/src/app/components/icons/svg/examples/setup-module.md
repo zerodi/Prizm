@@ -1,20 +1,20 @@
 ```ts
 // Использование svg
 import { NgModule } from '@angular/core';
-import { PrizmIconsSvgModule } from '@prizm-ui/icons';
+import { PrizmIconsSvgComponent } from '@prizm-ui/icons';
 
 // ...
 
 @NgModule({
   imports: [
     // ...
-    PrizmIconsSvgModule,
+    PrizmIconsSvgComponent,
   ],
 })
 export class MyModule {}
 ```
 
-```bash
+```text
  # Использование шрифтов
  # Добавить в конфиг файл ангуляра для использования шрифтов
  "styles": [

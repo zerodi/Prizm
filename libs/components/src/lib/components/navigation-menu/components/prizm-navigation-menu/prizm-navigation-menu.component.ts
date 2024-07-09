@@ -3,6 +3,7 @@ import {
   Component,
   ContentChildren,
   EventEmitter,
+  inject,
   Input,
   Output,
   QueryList,
@@ -15,7 +16,7 @@ import { PrizmNavigationMenuToolbarService } from '../../services/prizm-navigati
 import { PrizmNavigationMenuService } from '../../services/prizm-navigation-menu.service';
 import { Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { PrizmDestroyService } from '@prizm-ui/helpers';
+import { PrizmDestroyService, prizmEmptyQueryList } from '@prizm-ui/helpers';
 import {
   GroupExpandedChangedEvent,
   ItemExpandedChangedEvent,
@@ -31,10 +32,14 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PrizmTreeModule } from '../../../tree';
 import { PrizmIconsSvgModule } from '@prizm-ui/icons';
-import { PrizmButtonModule } from '../../../button';
-import { PolymorphOutletDirective, PrizmHoveredModule } from '../../../../directives';
+import { PrizmButtonComponent } from '../../../button';
+import { PolymorphOutletDirective, PrizmHintDirective, PrizmHoveredDirective } from '../../../../directives';
 import { PrizmAccordionComponent } from '../../../accordion';
 import { PrizmNavigationMenuToolbarComponent } from '../prizm-navigation-menu-toolbar/prizm-navigation-menu-toolbar.component';
+import { prizmIsTextOverflow } from '../../../../util';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
+import { prizmIconsGear8Edge, prizmIconsHouse } from '@prizm-ui/icons/full/source';
+import { PrizmScrollbarComponent } from '../../../scrollbar';
 
 @Component({
   selector: 'prizm-navigation-menu',
@@ -47,12 +52,14 @@ import { PrizmNavigationMenuToolbarComponent } from '../prizm-navigation-menu-to
     ReactiveFormsModule,
     PrizmTreeModule,
     PrizmIconsSvgModule,
-    PrizmButtonModule,
-    PrizmHoveredModule,
+    PrizmButtonComponent,
+    PrizmHoveredDirective,
     PrizmAccordionComponent,
     PolymorphOutletDirective,
     PrizmNavigationMenuGroupComponent,
     PrizmNavigationMenuToolbarComponent,
+    PrizmHintDirective,
+    PrizmScrollbarComponent,
   ],
   providers: [PrizmNavigationMenuService, PrizmNavigationMenuToolbarService, PrizmDestroyService],
 })
@@ -60,7 +67,7 @@ export class PrizmNavigationMenuComponent<
   UserItem extends Omit<PrizmNavigationMenuItem, 'children'> & { children?: UserItem[] }
 > extends PrizmAbstractTestId {
   @ContentChildren(PrizmNavigationMenuGroupComponent)
-  menuGroups!: QueryList<PrizmNavigationMenuGroupComponent<UserItem>>;
+  menuGroups: QueryList<PrizmNavigationMenuGroupComponent<UserItem>> = prizmEmptyQueryList();
 
   @Output() homeClicked = new EventEmitter<void>();
   @Output() activeItemChanged = new EventEmitter<UserItem>();
@@ -77,7 +84,9 @@ export class PrizmNavigationMenuComponent<
   @Input() headerExtraTemplate!: TemplateRef<unknown>;
 
   @Input() set activeItem(activeItem: UserItem | null) {
-    this.menuService.setActiveItem(activeItem as UserItem);
+    queueMicrotask(() => {
+      this.menuService.setActiveItem(activeItem as UserItem);
+    });
   }
   @Input() set itemKeyName(keyName: string) {
     this.menuService.setItemKeyName(keyName);
@@ -124,12 +133,17 @@ export class PrizmNavigationMenuComponent<
 
   headerIsHovered!: boolean;
 
+  public readonly prizmIsTextOverflow = prizmIsTextOverflow;
+
+  private readonly iconsFullRegistry = inject(PrizmIconsFullRegistry);
   constructor(
     private menuService: PrizmNavigationMenuService<UserItem>,
     private destroy$: PrizmDestroyService
   ) {
     super();
     this.forwardEvents();
+
+    this.iconsFullRegistry.registerIcons(prizmIconsGear8Edge, prizmIconsHouse);
   }
 
   public handleHomeClicked(): void {

@@ -2,21 +2,23 @@
   #dropdownHostRef
   [content]="dropdown"
   [isOpen]="$any(opened$ | async)"
-  [prizmDropdownHost]="layoutComponent.el.nativeElement"
+  [prizmDropdownHost]="layoutComponent?.el?.nativeElement"
   [prizmDropdownHostWidth]="dropdownWidth"
   [prizmDropdownMinHeight]="minDropdownHeight"
   [prizmDropdownMaxHeight]="maxDropdownHeight"
   [dropdownStyles]="dropdownStyles"
   [dropdownClasses]="dropdownClasses"
-  [ngSwitch]="layoutComponent.outer"
+  [ngSwitch]="layoutComponent?.outer"
+  [prizmFocusable]="true"
   (isOpenChange)="$event && searchInputControl.setValue(''); opened$$.next($event)"
 >
   <input
     #focusableElementRef
-    [style.display]="layoutComponent.outer && value?.length ? 'none' : ''"
-    [style.visibility]="!layoutComponent.outer && value?.length ? 'hidden' : ''"
+    [style.display]="layoutComponent?.outer && value?.length ? 'none' : ''"
+    [style.visibility]="!layoutComponent?.outer && value?.length ? 'hidden' : ''"
     [disabled]="disabled"
     [readonly]="true"
+    [tabIndex]="!disabled ? 1 : -1"
     [placeholder]="placeholder"
     [ngModelOptions]="{ standalone: true }"
     [ngModel]="($any(value) | prizmCallFunc : stringify) ?? ''"
@@ -31,7 +33,7 @@
       [style.--prizm-data-list-border]="0"
     >
       <div class="list-search-item" *ngIf="searchable">
-        <prizm-input-layout size="m" label="Поиск">
+        <prizm-input-layout [label]="searchLabelTranslation$ | async" size="m">
           <input
             class="input-search"
             #input
@@ -40,14 +42,14 @@
             prizmInput
             prizmAutoFocus
           />
-          <button [interactive]="true" prizmInputIconButton="sort-zoom-in" prizm-input-right></button>
+          <button [interactive]="true" prizmInputIconButton="magnifying-glass" prizm-input-right></button>
         </prizm-input-layout>
       </div>
       <ng-container *ngIf="$.filteredItems?.length; else emptyTemplate">
         <div
           class="item"
           #parent
-          *ngFor="let item of $.filteredItems; let idx = index"
+          *ngFor="let item of $.filteredItems; let idx = index; trackBy: trackBy"
           [class.selected]="item.checked"
           [class.most-relevant]="searchable && searchInputControl.value && idx === 0"
         >
@@ -101,15 +103,16 @@
       context: $any({ opened: opened$ | async, disabled: disabled })
     "
   >
-    <prizm-icon
+    <prizm-icons-full
       [class.opened]="opened$ | async"
       [class.active]="(focused$ | async) || (opened$ | async)"
       [class.icon-dropdown]="iconName === defaultIcon"
-      [iconClass]="$any(iconName)"
+      [name]="$any(iconName)"
       [class.disabled]="disabled"
+      [prizmFocusable]="true"
       (click)="safeOpenModal()"
     >
-    </prizm-icon>
+    </prizm-icons-full>
   </ng-container>
 </ng-container>
 
@@ -122,7 +125,11 @@
 <ng-template #chipsTemplate>
   <ng-container *prizmLet="selectedItemsChips$ | async as chips">
     <prizm-chips
-      [style.max-width.px]="layoutComponent.el.nativeElement.clientWidth - button_layout_width"
+      [style.max-width.px]="
+        layoutComponent?.el?.nativeElement
+          ? layoutComponent!.el!.nativeElement.clientWidth - button_layout_width
+          : 0
+      "
       [class.empty]="!chips.length"
       [size]="$any(size)"
       [class.inner]="inner"

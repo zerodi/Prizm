@@ -4,6 +4,7 @@ import {
   ElementRef,
   forwardRef,
   HostBinding,
+  inject,
   Inject,
   Injector,
   Input,
@@ -47,16 +48,17 @@ import { prizmI18nInitWithKey } from '../../../services';
 import { CommonModule } from '@angular/common';
 import {
   PolymorphOutletDirective,
-  PrizmLifecycleModule,
-  PrizmPreventDefaultModule,
+  PrizmLifecycleDirective,
+  PrizmPreventDefaultDirective,
   PrizmValueAccessorModule,
 } from '../../../directives';
 import { PrizmMaskModule } from '../../../modules';
 import { PrizmCalendarModule } from '../../calendar';
 import { PrizmInputTextModule } from '../input-text';
-import { PrizmIconComponent } from '../../icon';
-import { PrizmLinkModule } from '../../link';
+import { PrizmLinkComponent } from '../../link';
 import { PrizmDropdownHostComponent } from '../../dropdowns/dropdown-host';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
+import { prizmIconsCalendarBlank } from '@prizm-ui/icons/full/source';
 
 @Component({
   selector: `prizm-input-layout-date`,
@@ -77,14 +79,13 @@ import { PrizmDropdownHostComponent } from '../../dropdowns/dropdown-host';
   standalone: true,
   imports: [
     CommonModule,
-    PrizmLifecycleModule,
+    PrizmLifecycleDirective,
     PrizmMaskModule,
     PolymorphOutletDirective,
-    PrizmPreventDefaultModule,
+    PrizmPreventDefaultDirective,
     PrizmCalendarModule,
     PrizmInputTextModule,
-    PrizmIconComponent,
-    PrizmLinkModule,
+    PrizmLinkComponent,
     FormsModule,
     PrizmDropdownHostComponent,
     PrizmValueAccessorModule,
@@ -144,6 +145,8 @@ export class PrizmInputLayoutDateComponent extends PrizmInputNgControl<PrizmDay 
 
   public rightButtons$!: BehaviorSubject<PrizmDateButton[]>;
 
+  private readonly iconsFullRegistry = inject(PrizmIconsFullRegistry);
+
   constructor(
     @Inject(Injector) injector: Injector,
     @Inject(PrizmDialogService) private readonly dialogService: PrizmDialogService,
@@ -159,6 +162,8 @@ export class PrizmInputLayoutDateComponent extends PrizmInputNgControl<PrizmDay 
   ) {
     super(injector, valueTransformer);
     this.extraButtonInjector = injector;
+
+    this.iconsFullRegistry.registerIcons(prizmIconsCalendarBlank);
   }
 
   public override ngOnInit(): void {

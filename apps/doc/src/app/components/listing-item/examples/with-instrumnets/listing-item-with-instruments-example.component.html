@@ -1,0 +1,27 @@
+<div class="container">
+  <prizm-listing-item
+    *ngFor="let cell of cells"
+    [disabled]="cell.disabled"
+    [selected]="cell.selected"
+    [style.--prizm-listing-item-row-selected-hover]="'var(--prizm-table-fill-row-hover)'"
+  >
+    <ng-container leftBox>
+      <prizm-checkbox [(ngModel)]="cell.selected" [checked]="cell.selected"></prizm-checkbox>
+    </ng-container>
+
+    <ng-container>
+      {{ cell.title }}
+    </ng-container>
+
+    <ng-container rightBox>
+      <prizm-counter [value]="cell.count" [maxValue]="99" status="info"></prizm-counter>
+      <button
+        [icon]="'location-dot'"
+        prizmIconButton
+        appearanceType="ghost"
+        appearance="secondary"
+        size="m"
+      ></button>
+    </ng-container>
+  </prizm-listing-item>
+</div>

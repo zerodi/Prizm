@@ -22,6 +22,10 @@ export class InputChipsExampleComponent {
   public label = 'Заголовок';
   public hintText = 'Отдельный chips';
 
+  public prizmChipsItemHeight: string | null = null;
+  public prizmChipsItemBackground: string | null = null;
+  public prizmChipsItemColor: string | null = null;
+
   public inputPosition: PrizmInputPosition = 'left';
   public inputPositions: PrizmInputPosition[] = ['left', 'center'];
   public outer!: false;
@@ -42,6 +46,7 @@ export class InputChipsExampleComponent {
   public deletable = true;
   public disabled = false;
   public singleLine = false;
+  public selected = false;
 
   @ViewChild(PrizmInputTextComponent, { static: false }) input!: PrizmInputTextComponent;
   @ViewChild(PrizmChipsComponent, { static: false }) chipsComponent!: PrizmChipsComponent;
@@ -49,19 +54,16 @@ export class InputChipsExampleComponent {
   public readonly prizmInputChipsExample: TuiDocExample = {
     TypeScript: import('./examples/input-chips-basic-example/input-chips-basic-example.component.ts?raw'),
     HTML: import('./examples/input-chips-basic-example/input-chips-basic-example.component.html?raw'),
-    LESS: import('./examples/input-chips-basic-example/input-chips-basic-example.component.less?raw'),
   };
 
   public readonly prizmInputChipsOuterExample: TuiDocExample = {
     TypeScript: import('./examples/input-chips-outer-example/input-chips-outer-example.component.ts?raw'),
     HTML: import('./examples/input-chips-outer-example/input-chips-outer-example.component.html?raw'),
-    LESS: import('./examples/input-chips-outer-example/input-chips-outer-example.component.less?raw'),
   };
 
   public readonly prizmInputChipsItemExample: TuiDocExample = {
     TypeScript: import('./examples/input-chips-item-example/input-chips-item-example.component.ts?raw'),
     HTML: import('./examples/input-chips-item-example/input-chips-item-example.component.html?raw'),
-    LESS: import('./examples/input-chips-item-example/input-chips-item-example.component.less?raw'),
   };
 
   readonly setupModule: RawLoaderContent = import('./examples/setup-module.md?raw');

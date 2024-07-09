@@ -26,6 +26,7 @@ export class InputComponent {
   public label = 'Заголовок';
 
   value = 'some text';
+  placeholder = '';
 
   public border = false;
   public inputPosition: PrizmInputPosition = 'left';
@@ -42,6 +43,10 @@ export class InputComponent {
 
   public forceClearVariants: ReadonlyArray<boolean | null> = [null, false, true];
   public forceClear = this.forceClearVariants[0];
+
+  public hideClearButtonHint: boolean | null = null;
+  public hideHintVariants: ReadonlyArray<boolean | null> = [null, false, true];
+
   public readonly prizmHintDirectionVariants: ReadonlyArray<PrizmHintOptions['direction']> = Object.values(
     PrizmOverlayOutsidePlacement
   );

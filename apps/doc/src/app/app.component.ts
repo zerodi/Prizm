@@ -13,6 +13,7 @@ import { PRIZM_LOG_LEVEL, prizmAssert } from '@prizm-ui/core';
 import { ActivationEnd, Router } from '@angular/router';
 import { DOCUMENT } from '@angular/common';
 import { DocDemoService } from './doc-demo.service';
+import { ThemeTokenChangerService } from './theme-token-changer/theme-token-changer.service';
 
 /**
  * Show all assert logg as warning
@@ -37,24 +38,27 @@ export class AppComponent implements AfterViewInit {
   public element!: HTMLElement;
   @ViewChild('docRef') docEl!: { night: boolean; onMode: (isNight: boolean) => void };
 
-  readonly isNight$ = this.themeSwitcher.change$.pipe(map(i => i.theme === 'dark'));
+  readonly isNight$ = this.themeSwitcher.change$.pipe(
+    map(i => i.theme === 'dark'),
+    debounceTime(0),
+    distinctUntilChanged()
+  );
 
   @HostBinding('attr.data-mode')
-  get mode(): TuiBrightness | null {
-    return this.themeSwitcher.getByElement() === 'dark' ? 'onDark' : null;
-  }
+  mode: TuiBrightness | null = null;
 
   constructor(
     private readonly themeSwitcher: PrizmThemeService,
     private readonly prizmDocHostElementListenerService: PrizmDocHostElementListenerService,
     private readonly destroy$: PrizmDestroyService,
     public readonly router: Router,
+    public readonly themeTokenChangerService: ThemeTokenChangerService,
     private readonly toastService: PrizmToastService,
     @Inject(DOCUMENT) private readonly documentRef: Document,
     @Inject(PRIZM_DOC_TITLE) private readonly docTitle: string
   ) {
-    this.themeSwitcher.rootElement = null;
     this.initPageTitleSetter();
+    this.themeTokenChangerService.init().pipe(takeUntil(this.destroy$)).subscribe();
   }
 
   private initPageTitleSetter(): void {
@@ -79,6 +83,7 @@ export class AppComponent implements AfterViewInit {
   public ngAfterViewInit(): void {
     this.onMode(this.docEl.night);
     this.initAnchorScroller();
+    this.initThemeModeChanger();
     this.prizmDocHostElementListenerService.event$
       .pipe(
         tap(event => {
@@ -132,6 +137,19 @@ export class AppComponent implements AfterViewInit {
       .subscribe();
   }
 
+  private initThemeModeChanger() {
+    this.themeSwitcher.change$
+      .pipe(
+        debounceTime(0),
+        map(() => this.themeSwitcher.getByElement()),
+        tap(theme => {
+          this.mode = theme === 'dark' ? 'onDark' : null;
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe();
+  }
+
   private initAnchorScroller(): void {
     this.router.events
       .pipe(
@@ -153,9 +171,5 @@ export class AppComponent implements AfterViewInit {
     this.themeSwitcher.update(isNight ? 'dark' : 'light', this.element);
     /* update taiga doc theme */
     this.docEl.onMode(isNight);
-  }
-
-  public contentReady(el: HTMLElement): void {
-    this.themeSwitcher.rootElement = el;
   }
 }

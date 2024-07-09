@@ -1,10 +1,12 @@
 import { Directive, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { PolymorphContent, PrizmHintDirective, PrizmHintOptions } from '../../../directives';
 import { prizmSwitcherHint } from '../switcher.interface';
+import { PrizmDestroyService } from '@prizm-ui/helpers';
 
 @Directive({
   selector: '[prizmSwitcherHint]',
   standalone: true,
+  providers: [PrizmDestroyService],
 })
 export class PrizmSwitcherHintDirective implements OnInit, OnChanges, OnDestroy {
   readonly prizmHint_ = new PrizmHintDirective();
@@ -27,7 +29,7 @@ export class PrizmSwitcherHintDirective implements OnInit, OnChanges, OnDestroy 
   }
 
   public ngOnChanges(): void {
-    this.prizmHint_.ngOnChanges();
+    this.hintSyncChanges();
   }
 
   public ngOnDestroy(): void {
@@ -45,6 +47,6 @@ export class PrizmSwitcherHintDirective implements OnInit, OnChanges, OnDestroy 
   }
 
   private hintSyncChanges(): void {
-    this.prizmHint_.ngOnChanges();
+    this.prizmHint_.drawHint();
   }
 }

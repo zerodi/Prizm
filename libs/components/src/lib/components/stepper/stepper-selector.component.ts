@@ -1,10 +1,22 @@
-import { trigger, transition, style, animate } from '@angular/animations';
-import { Component, EventEmitter, HostBinding, Input, Output, QueryList, ViewChildren } from '@angular/core';
+import { animate, style, transition, trigger } from '@angular/animations';
+import {
+  Component,
+  EventEmitter,
+  HostBinding,
+  Input,
+  Output,
+  QueryList,
+  ViewChildren,
+  inject,
+} from '@angular/core';
 import { PrizmStepperSelectorItemDirective } from './stepper-selector-item.directive';
 import { PrizmStepperStepDirective } from './stepper-step.directive';
 import { PrizmAbstractTestId } from '@prizm-ui/core';
 import { CommonModule } from '@angular/common';
-import { PrizmIconComponent } from '../icon/icon.component';
+import { prizmEmptyQueryList } from '@prizm-ui/helpers';
+import { PrizmIconsComponent } from '@prizm-ui/icons';
+import { PrizmIconsRegistry } from '@prizm-ui/icons/core';
+import { prizmIconsCircleCheckFill, prizmIconsCircleExclamationFill } from '@prizm-ui/icons/base/source';
 
 @Component({
   selector: 'prizm-stepper-selector',
@@ -16,7 +28,7 @@ import { PrizmIconComponent } from '../icon/icon.component';
     ]),
   ],
   standalone: true,
-  imports: [CommonModule, PrizmIconComponent, PrizmStepperSelectorItemDirective],
+  imports: [CommonModule, PrizmStepperSelectorItemDirective, PrizmIconsComponent],
 })
 export class PrizmStepperSelectorComponent extends PrizmAbstractTestId {
   @Input() steps: PrizmStepperStepDirective[] = [];
@@ -28,11 +40,17 @@ export class PrizmStepperSelectorComponent extends PrizmAbstractTestId {
   @Output() selectStep = new EventEmitter<number>();
 
   @ViewChildren(PrizmStepperSelectorItemDirective)
-  selectorItems!: QueryList<PrizmStepperSelectorItemDirective>;
+  selectorItems: QueryList<PrizmStepperSelectorItemDirective> = prizmEmptyQueryList();
   override readonly testId_ = 'ui_stepper--selector';
 
+  private readonly iconsRegistry = inject(PrizmIconsRegistry);
+
+  constructor() {
+    super();
+    this.iconsRegistry.registerIcons(prizmIconsCircleCheckFill, prizmIconsCircleExclamationFill);
+  }
+
   public clickOnStep(index: number): void {
-    console.log(this.steps);
     if (this.currentStep !== index) {
       this.selectStep.next(index);
     }

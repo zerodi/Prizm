@@ -3,6 +3,7 @@ import {
   Component,
   ContentChild,
   forwardRef,
+  inject,
   Inject,
   Injector,
   Input,
@@ -44,13 +45,14 @@ import { CommonModule } from '@angular/common';
 import { PrizmMaskModule } from '../../../modules';
 import {
   PolymorphOutletDirective,
-  PrizmLifecycleModule,
+  PrizmLifecycleDirective,
   PrizmValueAccessorModule,
 } from '../../../directives';
 import { PrizmInputTextModule } from '../input-text';
-import { PrizmIconComponent } from '../../icon';
 import { PrizmDropdownHostComponent } from '../../dropdowns/dropdown-host';
 import { PrizmCalendarRangeComponent } from '../../calendar-range';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
+import { prizmIconsCalendarRange } from '@prizm-ui/icons/full/source';
 
 @Component({
   selector: `prizm-input-layout-date-range`,
@@ -75,11 +77,10 @@ import { PrizmCalendarRangeComponent } from '../../calendar-range';
     CommonModule,
     PrizmMaskModule,
     PrizmInputZoneModule,
-    PrizmLifecycleModule,
+    PrizmLifecycleDirective,
     PrizmLetDirective,
     PolymorphOutletDirective,
     PrizmInputTextModule,
-    PrizmIconComponent,
     PrizmDropdownHostComponent,
     PrizmCalendarRangeComponent,
     PrizmValueAccessorModule,
@@ -152,6 +153,8 @@ export class PrizmInputLayoutDateRangeComponent extends PrizmInputNgControl<Priz
     ) as Observable<boolean>;
   }
 
+  private readonly iconsFullRegistry = inject(PrizmIconsFullRegistry);
+
   constructor(
     @Inject(ChangeDetectorRef) changeDetectorRef: ChangeDetectorRef,
     @Inject(Injector) injector: Injector,
@@ -167,6 +170,8 @@ export class PrizmInputLayoutDateRangeComponent extends PrizmInputNgControl<Priz
     override readonly valueTransformer: PrizmControlValueTransformer<PrizmDayRange | null> | null
   ) {
     super(injector, valueTransformer);
+
+    this.iconsFullRegistry.registerIcons(prizmIconsCalendarRange);
   }
 
   public get focused(): Observable<boolean> {
@@ -216,27 +221,59 @@ export class PrizmInputLayoutDateRangeComponent extends PrizmInputNgControl<Priz
     this.changeDetectorRef.markForCheck();
   }
 
-  public onValueFromChange(value: string, isFormValue: boolean): void {
-    if (isFormValue && value === this.fromValue) return;
-    if (!isFormValue && value === this.toValue) return;
-    this.nativeValue$$.next(
-      isFormValue ? [value, this.nativeValue$$.value[1]] : [this.nativeValue$$.value[0], value]
-    );
+  public onValueFromChange(value: string, isFromValue: boolean): void {
+    // Clear from mask
+    value = value.replace(/[_]/g, '');
+
+    const currentValue = isFromValue ? this.fromValue : this.toValue;
+    if (value === currentValue) return;
+
+    const otherValue = isFromValue ? this.nativeValue$$.value[1] : this.nativeValue$$.value[0];
+    this.nativeValue$$.next(isFromValue ? [value, otherValue] : [otherValue, value]);
+
     if (value == null) {
       this.onOpenChange(true);
     }
 
     if (!value || value.length !== this.computedSingleMask.length) {
-      if (!value && isFormValue && !this.value?.to && !isFormValue && !this.value?.from)
+      if (!value && isFromValue && !this.value?.to && !isFromValue && !this.value?.from) {
         this.updateValue(null);
+      }
       return;
     }
 
     const parsedValue = PrizmDay.normalizeParse(value, this.dateFormat);
-    this.updateWithCorrectDateAndTime(
-      isFormValue ? parsedValue : (this.value?.from as any),
-      isFormValue ? this.value?.to : (parsedValue as any)
+    const [parsedFromValue, parsedToValue] = this.ensureCorrectDateOrder(
+      isFromValue,
+      isFromValue ? parsedValue : this.value?.from,
+      isFromValue ? this.value?.to : parsedValue
     );
+
+    this.updateWithCorrectDateAndTime(parsedFromValue ?? null, parsedToValue ?? null);
+  }
+
+  /**
+   * Ensures that the date range is valid by adjusting the fromValue and toValue if necessary.
+   * If the fromValue is later than the toValue, it corrects the order based on the isFromValue flag.
+   *
+   * @param isFromValue - A boolean indicating if the change was made to the fromValue.
+   * @param fromValue - The starting date of the range.
+   * @param toValue - The ending date of the range.
+   * @returns A tuple containing the corrected fromValue and toValue.
+   */
+  private ensureCorrectDateOrder(
+    isFromValue: boolean,
+    fromValue?: PrizmDay,
+    toValue?: PrizmDay
+  ): [typeof fromValue, typeof toValue] {
+    if (fromValue && toValue && fromValue.getTime() > toValue.getTime()) {
+      if (isFromValue) {
+        fromValue = toValue.copy();
+      } else {
+        toValue = fromValue.copy();
+      }
+    }
+    return [fromValue, toValue];
   }
 
   public onRangeChange(range: PrizmDayRange | null): void {
@@ -273,6 +310,18 @@ export class PrizmInputLayoutDateRangeComponent extends PrizmInputNgControl<Priz
   private updateWithCorrectDateAndTime(from: PrizmDay | null, to: PrizmDay | null): void {
     if (from) from = this.dayLimit(from);
     if (to) to = this.dayLimit(to);
+    // need to update mask value for sync values
+    // TODO move to helper and add to all similar cases
+    this.focusableElement?.updateNativeValues(
+      {
+        idx: 0,
+        value: from?.toString() ?? '',
+      },
+      {
+        idx: 1,
+        value: to?.toString() ?? '',
+      }
+    );
     this.updateValue(new PrizmDayRange(from as any, to as any));
   }
 
@@ -313,6 +362,6 @@ export class PrizmInputLayoutDateRangeComponent extends PrizmInputNgControl<Priz
     super.clear(ev);
     this.nativeValue$$.next(['', '']);
     this.updateValue(null);
-    this.layoutComponent.cdr.markForCheck();
+    this.layoutComponent?.cdr.markForCheck();
   }
 }

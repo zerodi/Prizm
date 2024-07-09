@@ -6,7 +6,10 @@
   .prizm-input-form-status-button,
   .prizm-input-button-default {
     flex-shrink: 0;
-    height: 100%;
+  }
+
+  .prizm-input-form-status-button {
+    align-self: center;
   }
 
   .prizm-input-button-default {
@@ -16,7 +19,7 @@
   &:hover,
   &:focus-within {
     .prizm-input-button-default {
-      display: block;
+      display: flex;
     }
   }
 }
@@ -36,22 +39,21 @@
 .prizm-input-label {
   font-weight: 600;
   font-size: 12px;
-  color: var(--prizm-text-subscript);
-  padding-left: 16px;
+  color: var(--prizm-text-icon-tertiary);
   line-height: 16px;
   transition: top 200ms ease 0s;
   pointer-events: none;
   width: 100%;
   display: flex;
   gap: 4px;
+  margin-bottom: 4px;
 
   &-required {
-    color: var(--prizm-index-danger);
+    color: var(--prizm-status-alarm-primary-default);
   }
 
   &-inner {
     position: absolute;
-    padding-left: 8px;
     display: flex;
     gap: 4px;
     max-width: 100%;
@@ -90,8 +92,8 @@
 }
 
 .prizm-input-form {
-  background-color: var(--prizm-bg-dashboard-forms);
-  border: 1px solid var(--prizm-border-forms);
+  background-color: var(--prizm-form-fill-default);
+  border: 1px solid var(--prizm-form-stroke-default);
   border-radius: 2px;
   display: flex;
   flex-direction: column;
@@ -113,13 +115,18 @@
   }
 
   &:hover {
-    border-color: var(--prizm-index-plan);
+    border-color: var(--prizm-form-stroke-hover);
   }
 
   &__first {
     display: flex;
     align-items: center;
     flex-grow: 1;
+  }
+
+  &:not(:has([prizm-input-bottom])):not(.prizm-input-form-textarea) &__first {
+    // Hack for height in percents for buttons inside controls
+    height: 1px;
   }
 
   &-body {
@@ -129,61 +136,62 @@
 
   &-status {
     &-success {
-      border-color: var(--prizm-index-good);
+      border-color: var(--prizm-status-success-primary-default);
       &:hover {
-        border-color: var(--prizm-index-good);
+        border-color: var(--prizm-status-success-primary-hover);
       }
 
       .prizm-input-form-status-button {
-        color: var(--prizm-index-good);
+        color: var(--prizm-status-success-primary-default);
       }
     }
 
     &-warning {
-      border-color: var(--prizm-index-warning);
+      border-color: var(--prizm-status-warning-primary-default);
       &:hover {
-        border-color: var(--prizm-index-warning);
+        border-color: var(--prizm-status-warning-primary-hover);
       }
 
       .prizm-input-form-status-button {
-        color: var(--prizm-index-warning);
+        color: var(--prizm-status-warning-primary-default);
       }
     }
 
     &-danger {
-      border-color: var(--prizm-index-danger);
+      border-color: var(--prizm-status-alarm-primary-default);
       &:hover {
-        border-color: var(--prizm-index-danger);
+        border-color: var(--prizm-status-alarm-primary-hover);
       }
 
       .prizm-input-form-status-button {
-        color: var(--prizm-index-danger);
+        color: var(--prizm-status-alarm-primary-default);
       }
     }
   }
 
   &-invalid {
     &.prizm-input-form-touched {
-      border-color: var(--prizm-index-danger);
+      border-color: var(--prizm-status-alarm-primary-default);
     }
 
     .prizm-input-form-status-button {
-      color: var(--prizm-index-danger);
+      color: var(--prizm-status-alarm-primary-default);
     }
   }
 
   // rewrite all if focused
-  &-focused:host-context(.enabled),
-  &:focus-within:host-context(.enabled) {
-    border-color: var(--prizm-index-plan);
-    box-shadow: 0 0 0 2px var(--prizm-lite-b130-20);
+  &-focused,
+  &:focus-within {
+    border-color: var(--prizm-form-active);
+    box-shadow: 0 0 0 2px var(--prizm-background-stroke-focus);
+    position: relative;
 
     &:hover {
-      border-color: var(--prizm-index-plan);
+      border-color: var(--prizm-form-active-hover);
     }
 
     .prizm-input-button-default {
-      display: block;
+      display: flex;
     }
   }
 
@@ -194,16 +202,34 @@
     }
 
     cursor: not-allowed;
+
+    ::ng-deep {
+      [prizmInputIconButton] {
+        display: none;
+      }
+    }
   }
 
   &-inner {
     min-height: 44px;
 
+    &:not(:has(prizm-chips > .chips-list)) {
+      max-height: 44px;
+    }
+
     &[data-size='l'] {
       min-height: 44px;
+
+      &:not(:has(prizm-chips > .chips-list)) {
+        max-height: 44px;
+      }
     }
     &[data-size='m'] {
       min-height: 36px;
+
+      &:not(:has(prizm-chips > .chips-list)) {
+        max-height: 36px;
+      }
     }
   }
 
@@ -213,14 +239,30 @@
   &-outer {
     min-height: 32px;
 
+    &:not(:has(prizm-chips > .chips-list)) {
+      max-height: 32px;
+    }
+
     &[data-size='l'] {
       min-height: 40px;
+
+      &:not(:has(prizm-chips > .chips-list)) {
+        max-height: 40px;
+      }
     }
     &[data-size='m'] {
       min-height: 32px;
+
+      &:not(:has(prizm-chips > .chips-list)) {
+        max-height: 32px;
+      }
     }
     &[data-size='s'] {
       min-height: 24px;
+
+      &:not(:has(prizm-chips > .chips-list)) {
+        max-height: 24px;
+      }
     }
   }
 
@@ -230,11 +272,12 @@
       .prizm-input-button-default {
         position: absolute;
         z-index: 100;
-        background-color: var(--prizm-bg-dashboard-forms);
+        background-color: var(--prizm-form-fill-default);
+        height: auto;
       }
 
       .prizm-input-button-default {
-        right: 32px;
+        right: 24px;
 
         &.alone {
           right: 0;
@@ -251,21 +294,20 @@
 }
 
 .prizm-input-form-subtext {
-  padding-left: 16px;
   font-size: 10px;
   font-weight: 500;
   line-height: 22px;
 
   &-success {
-    color: var(--prizm-index-good);
+    color: var(--prizm-status-success-primary-default);
   }
 
   &-warning {
-    color: var(--prizm-index-warning);
+    color: var(--prizm-status-warning-primary-default);
   }
 
   &-danger {
-    color: var(--prizm-index-danger);
+    color: var(--prizm-status-alarm-primary-default);
   }
 }
 

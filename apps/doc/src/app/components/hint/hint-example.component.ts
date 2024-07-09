@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RawLoaderContent, TuiDocExample } from '@prizm-ui/doc';
 import {
-  IconDefs,
   PolymorphContent,
   PRIZM_HINT_DEFAULT_OPTIONS,
   PrizmAppearance,
@@ -11,6 +10,7 @@ import {
   PrizmOverlayOutsidePlacement,
   PrizmSize,
 } from '@prizm-ui/components';
+import { PRIZM_ICONS_NAMES } from '@prizm-ui/icons/base/names';
 
 @Component({
   selector: 'prizm-hint-example',
@@ -30,10 +30,7 @@ export class HintExampleComponent {
   public hoveredChange = false;
   public focusVisibleChange = false;
 
-  iconVariants: ReadonlyArray<PolymorphContent<{ size: PrizmSize }>> = [
-    '',
-    ...IconDefs.reduce((a: any[], c) => a.concat(c.data), []),
-  ];
+  iconVariants: ReadonlyArray<PolymorphContent<{ size: PrizmSize }>> = ['', ...PRIZM_ICONS_NAMES];
   icon: PolymorphContent<{ size: PrizmSize }> = this.iconVariants[0];
   iconRight: PolymorphContent<{ size: PrizmSize }> = this.iconVariants[0];
   appearanceVariants: ReadonlyArray<PrizmAppearance> = [
@@ -94,6 +91,10 @@ export class HintExampleComponent {
   readonly exampleWithTemplate: TuiDocExample = {
     TypeScript: import('./examples/with-template/hint-with-template-example.component.ts?raw'),
     HTML: import('./examples/with-template/hint-with-template-example.component.html?raw'),
+  };
+  readonly exampleWithContext: TuiDocExample = {
+    TypeScript: import('./examples/with-custom-context/hint-with-custom-context-example.component.ts?raw'),
+    HTML: import('./examples/with-custom-context/hint-with-custom-context-example.component.html?raw'),
   };
 
   readonly exampleWithComponent: TuiDocExample = {

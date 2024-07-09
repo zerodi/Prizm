@@ -25,6 +25,10 @@
             [hintDirection]="hintDirection"
             [hintCanShow]="hintCanShow"
             [prizmDocHostElement]="chipsItem"
+            [selected]="selected"
+            [style.--prizm-chips-item-heigh]="prizmChipsItemHeight"
+            [style.--prizm-chips-item-background]="prizmChipsItemBackground"
+            [style.--prizm-chips-item-color]="prizmChipsItemColor"
             style="width: 100px"
             prizmDocHostElementKey="PrizmChipsItemComponent"
           >
@@ -46,7 +50,6 @@
               #element
               [formControl]="control"
               [prizmDocHostElement]="element"
-              [class.single-line]="singleLine"
               [singleLine]="singleLine"
               [chips]="chips"
               [deletable]="deletable"
@@ -60,6 +63,30 @@
       </div>
     </prizm-doc-demo>
     <prizm-doc-documentation heading="PrizmChipsItemComponent" hostComponentKey="PrizmChipsItemComponent">
+      <ng-template
+        [(documentationPropertyValue)]="prizmChipsItemHeight"
+        documentationPropertyName="prizm-chips-item-heigh"
+        documentationPropertyType="string"
+        documentationPropertyMode="css-var"
+      >
+        Chips item height (default 24px)
+      </ng-template>
+      <ng-template
+        [(documentationPropertyValue)]="prizmChipsItemBackground"
+        documentationPropertyName="prizm-chips-item-background"
+        documentationPropertyType="string"
+        documentationPropertyMode="css-var"
+      >
+        Chips item background color
+      </ng-template>
+      <ng-template
+        [(documentationPropertyValue)]="prizmChipsItemColor"
+        documentationPropertyName="prizm-chips-item-color"
+        documentationPropertyType="string"
+        documentationPropertyMode="css-var"
+      >
+        Chips item font color
+      </ng-template>
       <ng-template
         [(documentationPropertyValue)]="disabled"
         documentationPropertyName="disabled"
@@ -76,6 +103,15 @@
         documentationPropertyMode="input"
       >
         Deletable
+      </ng-template>
+
+      <ng-template
+        [(documentationPropertyValue)]="selected"
+        documentationPropertyName="selected"
+        documentationPropertyType="boolean"
+        documentationPropertyMode="input"
+      >
+        Selected
       </ng-template>
 
       <ng-template

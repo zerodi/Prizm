@@ -1,18 +1,14 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RawLoaderContent, TuiDocExample } from '@prizm-ui/doc';
-import {
-  IconDefs,
-  PolymorphContent,
-  PrizmAppearance,
-  PrizmAppearanceType,
-  PrizmContent,
-  PrizmSize,
-} from '@prizm-ui/components';
+import { PolymorphContent, PrizmAppearance, PrizmAppearanceType, PrizmSize } from '@prizm-ui/components';
+import { PRIZM_ICONS_NAMES } from '@prizm-ui/icons/base/names';
+import { prizmIconsFullProvideLazyLoader } from '@prizm-ui/icons-loader/full';
 
 @Component({
   selector: 'prizm-button-example',
   templateUrl: './button.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [prizmIconsFullProvideLazyLoader()],
 })
 export class ButtonComponent {
   sizeVariants: ReadonlyArray<PrizmSize> = ['s', 'm', 'xm', 'l', 'xl'];
@@ -28,10 +24,7 @@ export class ButtonComponent {
   public pressedChange = false;
   public hoveredChange = false;
   public focusVisibleChange = false;
-  iconVariants: ReadonlyArray<PolymorphContent<{ size: PrizmSize }>> = [
-    '',
-    ...IconDefs.reduce((a: any[], c) => a.concat(c?.data), []),
-  ];
+  iconVariants: ReadonlyArray<PolymorphContent<{ size: PrizmSize }>> = ['', ...PRIZM_ICONS_NAMES];
   testIdPostfix!: string;
   icon: PolymorphContent<{ size: PrizmSize }> = this.iconVariants[0];
   iconRight: PolymorphContent<{ size: PrizmSize }> = this.iconVariants[0];

@@ -1,16 +1,39 @@
 <div class="box">
   <div class="year-month prizm-font-input-text-14px">
-    <div *ngIf="oneMonth; else buttonMonth">
-      {{ value | prizmMonth | async }}
+    <div class="month-box">
+      <button
+        class="pagination-btn"
+        [attr.testId]="'prizm-primitive-year-month-pagination__year-button'"
+        [class.active]="monthActive"
+        [prizmFocusable]="true"
+        [disabled]="oneMonth"
+        (click)="onMonthClick($event)"
+        type="button"
+      >
+        {{ value?.month | prizmMonth | async }}
+
+        <prizm-icons-full *ngIf="!oneMonth" name="triangle-down"></prizm-icons-full>
+      </button>
     </div>
 
-    <div *ngIf="oneYear; else button">
-      {{ value.formattedYear }}
+    <div class="year-box">
+      <button
+        class="pagination-btn"
+        [attr.data-testid]="'prizm-primitive-year-month-pagination__year-button'"
+        [prizmFocusable]="true"
+        [class.active]="yearActive"
+        [disabled]="oneYear"
+        (click)="onYearClick($event)"
+        type="button"
+      >
+        {{ value.formattedYear }}
+        <prizm-icons-full *ngIf="!oneYear" name="triangle-down"></prizm-icons-full>
+      </button>
     </div>
   </div>
   <div>
     <prizm-primitive-spin-button
-      *ngIf="!hideButtons"
+      [class.hidden]="hideButtons"
       [focusable]="false"
       [leftDisabled]="prevMonthDisabled"
       [rightDisabled]="nextMonthDisabled"
@@ -20,37 +43,3 @@
     </prizm-primitive-spin-button>
   </div>
 </div>
-
-<ng-template #button>
-  <div class="year-box" (click)="onYearClick($event)">
-    <button
-      [attr.data-testid]="'prizm-primitive-year-month-pagination__year-button'"
-      [prizmFocusable]="false"
-      [class.active]="yearActive"
-      type="button"
-      prizmLink
-    >
-      {{ value.formattedYear }}
-    </button>
-    <span>
-      <prizm-icon iconClass="chevrons-dropdown-small"></prizm-icon>
-    </span>
-  </div>
-</ng-template>
-
-<ng-template #buttonMonth>
-  <div class="month-box" (click)="onMonthClick($event)">
-    <button
-      [attr.testId]="'prizm-primitive-year-month-pagination__year-button'"
-      [class.active]="monthActive"
-      [prizmFocusable]="false"
-      type="button"
-      prizmLink
-    >
-      {{ value | prizmMonth | async }}
-    </button>
-    <span>
-      <prizm-icon iconClass="chevrons-dropdown-small"></prizm-icon>
-    </span>
-  </div>
-</ng-template>

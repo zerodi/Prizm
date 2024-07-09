@@ -1,9 +1,11 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import {
   PrizmTableCellSorter,
   PrizmTableCellStatus,
   prizmTableDefaultColumnSort,
 } from '@prizm-ui/components';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
+import { prizmIconsAlarmClock, prizmIconsMagnifyingGlass } from '@prizm-ui/icons/full/source';
 
 export interface ITableProduct {
   id?: number;
@@ -102,10 +104,20 @@ export class TableSortExampleComponent {
     },
   ];
 
+  private readonly iconsFullRegistry = inject(PrizmIconsFullRegistry);
+
+  constructor() {
+    this.iconsFullRegistry.registerIcons(prizmIconsMagnifyingGlass, prizmIconsAlarmClock);
+  }
+
   public search<T extends keyof ITableProduct>(value: string, key: T): void {
     this.searchString = value.toLowerCase();
     this.searchAllowedProducts = this.products.filter(product =>
       (product[key] as string).toLowerCase().includes(this.searchString as string)
     );
+  }
+
+  public doSomething<T extends keyof ITableProduct>(value: string, key: T): void {
+    console.log(value, key);
   }
 }

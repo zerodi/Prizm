@@ -1,21 +1,23 @@
-import { ChangeDetectionStrategy, Component, HostBinding, Inject, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, HostBinding, Inject, Input, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PRIZM_ANIMATIONS_DURATION } from '../../../tokens';
 import { PRIZM_DIALOG_CLOSE_STREAM, PRIZM_DIALOG_PROVIDERS } from '../dialog/dialog-options';
 import { PrizmAnimationOptions, prizmFadeIn, prizmSlideInTop } from '../../../animations';
 import { takeUntil, tap } from 'rxjs/operators';
-import { PrizmDestroyService, PrizmToObservableModule } from '@prizm-ui/helpers';
+import { PrizmDestroyService, PrizmToObservablePipe } from '@prizm-ui/helpers';
 import { PrizmBaseDialogContext, PrizmDialogSize } from '../dialog';
 import { PrizmSidebarOptions, PrizmSidebarResultDefaultType } from './sidebar.models';
 import { invokeIfCanCloseSidebar } from './util';
 import { PrizmAbstractTestId } from '../../../abstract/interactive';
 import { CommonModule } from '@angular/common';
-import { PolymorphModule, PrizmFocusTrapModule } from '../../../directives';
-import { PrizmThemeModule } from '@prizm-ui/theme';
-import { PrizmOverlayModule } from '../../../modules';
+import { PolymorphOutletDirective, PrizmFocusTrapModule } from '../../../directives';
+import { PrizmTheme, PrizmThemeModule } from '@prizm-ui/theme';
 import { PrizmInputIconButtonModule } from '../../input';
-import { PrizmButtonModule } from '../../button';
-import { PrizmScrollbarModule } from '../../scrollbar';
+import { PrizmButtonComponent } from '../../button';
+import { PrizmScrollbarComponent } from '../../scrollbar';
+import { PrizmOverlayComponent } from '../../../modules/overlay/overlay.component';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
+import { prizmIconsXmark } from '@prizm-ui/icons/full/source';
 
 @Component({
   selector: 'prizm-sidebar',
@@ -27,14 +29,14 @@ import { PrizmScrollbarModule } from '../../scrollbar';
   standalone: true,
   imports: [
     CommonModule,
-    PolymorphModule,
+    PolymorphOutletDirective,
     PrizmThemeModule,
-    PrizmToObservableModule,
-    PrizmOverlayModule,
+    PrizmToObservablePipe,
+    PrizmOverlayComponent,
     PrizmInputIconButtonModule,
-    PrizmButtonModule,
+    PrizmButtonComponent,
     PrizmFocusTrapModule,
-    PrizmScrollbarModule,
+    PrizmScrollbarComponent,
   ],
 })
 export class PrizmSidebarComponent<DATA = unknown> extends PrizmAbstractTestId {
@@ -43,6 +45,10 @@ export class PrizmSidebarComponent<DATA = unknown> extends PrizmAbstractTestId {
 
   @Input()
   public close!: () => void;
+
+  get theme(): PrizmTheme {
+    return this.context.theme!;
+  }
 
   @HostBinding('attr.prizm-size')
   public get size(): PrizmDialogSize {
@@ -80,6 +86,8 @@ export class PrizmSidebarComponent<DATA = unknown> extends PrizmAbstractTestId {
     },
   } as const;
 
+  private readonly iconsFullRegistry = inject(PrizmIconsFullRegistry);
+
   constructor(
     @Inject(PRIZM_ANIMATIONS_DURATION) private readonly duration: number,
     @Inject(PRIZM_DIALOG_CLOSE_STREAM) readonly close$: Observable<unknown>,
@@ -93,6 +101,8 @@ export class PrizmSidebarComponent<DATA = unknown> extends PrizmAbstractTestId {
         takeUntil(this.destroy$)
       )
       .subscribe();
+
+    this.iconsFullRegistry.registerIcons(prizmIconsXmark);
   }
 
   public closeSidebar(): void {

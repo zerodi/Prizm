@@ -7,6 +7,7 @@ import {
   ContentChildren,
   EventEmitter,
   forwardRef,
+  inject,
   Inject,
   Input,
   OnDestroy,
@@ -17,7 +18,7 @@ import {
 import { CollectionViewer, isDataSource, ListRange } from '@angular/cdk/collections';
 
 import { prizmDefaultProp } from '@prizm-ui/core';
-import { PrizmDestroyService } from '@prizm-ui/helpers';
+import { PrizmDestroyService, prizmEmptyQueryList } from '@prizm-ui/helpers';
 import { BehaviorSubject, isObservable, Observable } from 'rxjs';
 import { switchMap, takeUntil, tap } from 'rxjs/operators';
 import { PolymorphContent } from '../../../directives';
@@ -31,6 +32,8 @@ import { PrizmTableSorterService } from '../service';
 import { PrizmTableTreeService } from '../service/tree.service';
 import { PrizmTableDataSourceInput } from '../table.types';
 import { PrizmTrComponent } from '../tr/tr.component';
+import { PrizmIconsRegistry } from '@prizm-ui/icons/core';
+import { prizmIconsAngleRight } from '@prizm-ui/icons/base/source';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -134,7 +137,7 @@ export class PrizmTbodyComponent<T extends Partial<Record<keyof T, unknown>>>
   readonly row?: PrizmRowDirective<T>;
 
   @ContentChildren(forwardRef(() => PrizmTrComponent))
-  readonly rows: QueryList<PrizmTrComponent<T>> = new QueryList<PrizmTrComponent<T>>();
+  readonly rows: QueryList<PrizmTrComponent<T>> = prizmEmptyQueryList();
 
   columnsCount = 0;
   /**
@@ -147,6 +150,8 @@ export class PrizmTbodyComponent<T extends Partial<Record<keyof T, unknown>>>
     end: Number.MAX_VALUE,
   });
 
+  private readonly iconsRegistry = inject(PrizmIconsRegistry);
+
   constructor(
     @Inject(forwardRef(() => PrizmTableDirective))
     readonly table: PrizmTableDirective<T>,
@@ -154,7 +159,9 @@ export class PrizmTbodyComponent<T extends Partial<Record<keyof T, unknown>>>
     public readonly tableTreeService: PrizmTableTreeService,
     private readonly destroy$: PrizmDestroyService,
     private changeDetectorRef: ChangeDetectorRef
-  ) {}
+  ) {
+    this.iconsRegistry.registerIcons(prizmIconsAngleRight);
+  }
 
   ngAfterViewInit(): void {
     this.table.tableService.tableMaxColspan$

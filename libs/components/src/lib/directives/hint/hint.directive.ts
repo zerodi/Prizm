@@ -10,25 +10,24 @@ import {
   OnInit,
   Output,
   Renderer2,
+  SimpleChanges,
   Type,
 } from '@angular/core';
-import { PrizmDestroyService, prizmGenerateId } from '@prizm-ui/helpers';
+import { PrizmDestroyService, prizmGenerateId, prizmHasChanges } from '@prizm-ui/helpers';
 import { prizmDefaultProp, prizmRequiredSetter } from '@prizm-ui/core';
-import { PolymorphContent, PolymorphModule } from '../polymorph';
+import { PolymorphContent } from '../polymorph';
 import { PRIZM_HINT_OPTIONS, PrizmHintContext, PrizmHintOptions } from './hint-options';
 import {
   PrizmOverlayControl,
   PrizmOverlayRelativePosition,
   PrizmOverlayService,
 } from '../../modules/overlay';
-import { combineLatest, of, Subject } from 'rxjs';
+import { combineLatest, merge, of, Subject } from 'rxjs';
 import { PrizmHoveredService } from '../../services';
-import { delay, distinctUntilChanged, map, switchMap, takeUntil, tap } from 'rxjs/operators';
+import { delay, distinctUntilChanged, finalize, map, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { PrizmHintContainerComponent } from './hint-container.component';
 import { PrizmHintService } from './hint.service';
-import { PrizmTheme, PrizmThemeModule } from '@prizm-ui/theme';
-import { CommonModule } from '@angular/common';
-import { PrizmScrollbarModule } from '../../components/scrollbar';
+import { PrizmTheme } from '@prizm-ui/theme';
 
 export const HINT_HOVERED_CLASS = '_hint_hovered';
 
@@ -107,18 +106,18 @@ export class PrizmHintDirective<
   @Output()
   readonly prizmHintShowed = new EventEmitter<boolean>();
 
-  protected readonly onHoverActive: boolean = true;
+  public onHoverActive: boolean = true;
 
   content!: PolymorphContent;
-  overlay!: PrizmOverlayControl;
-  protected readonly containerComponent: Type<unknown> = PrizmHintContainerComponent;
-  protected readonly show$ = new Subject<boolean>();
+  overlay?: PrizmOverlayControl;
+  public containerComponent: Type<unknown> = PrizmHintContainerComponent;
+  public readonly show$ = new Subject<boolean>();
   protected readonly destroyListeners$ = new Subject<void>();
 
   private readonly prizmOverlayService: PrizmOverlayService = inject(PrizmOverlayService);
 
   private readonly renderer: Renderer2 = inject(Renderer2);
-  protected readonly elementRef: ElementRef<HTMLElement> = inject(ElementRef);
+  public readonly elementRef: ElementRef<HTMLElement> = inject(ElementRef);
   private readonly destroy$: PrizmDestroyService = inject(PrizmDestroyService);
   private readonly hoveredService: PrizmHoveredService = inject(PrizmHoveredService);
 
@@ -132,8 +131,13 @@ export class PrizmHintDirective<
     return this.prizmHintHost ?? this.elementRef.nativeElement;
   }
 
-  public ngOnChanges(): void {
-    this.initOverlayController();
+  public ngOnChanges(changes?: SimpleChanges): void {
+    this.show_ = false;
+    if (
+      prizmHasChanges(changes, ['prizmHintHost', 'prizmHint', 'prizmHintCanShow', 'prizmHintContext'], false)
+    ) {
+      this.drawHint();
+    }
   }
 
   public ngOnInit(): void {
@@ -154,7 +158,7 @@ export class PrizmHintDirective<
   }
 
   public ngOnDestroy(): void {
-    if (this.overlay) this.overlay.close();
+    this.overlay?.destroy();
   }
 
   public toggle(open: boolean): void {
@@ -165,15 +169,23 @@ export class PrizmHintDirective<
     }
   }
 
+  // public api for support hint wrappers
+  public drawHint(): void {
+    this.show_ = false;
+    this.initOverlayController();
+  }
+
   protected open(): void {
+    if (this.show_) return;
     if (!this.prizmHintCanShow || this.content === '') return;
     this.show_ = true;
     this.renderer.addClass(this.elementRef.nativeElement, HINT_HOVERED_CLASS);
-    this.overlay.open();
-    this.prizmHoveredChange$$.next(!this.show_);
+    this.overlay?.open();
+    this.prizmHoveredChange$$.next(this.show_);
   }
 
   protected close(): void {
+    if (!this.show_) return;
     this.show_ = false;
     this.renderer.removeClass(this.elementRef.nativeElement, HINT_HOVERED_CLASS);
     this.overlay?.close();
@@ -196,7 +208,6 @@ export class PrizmHintDirective<
   private initOverlayController(): void {
     this.destroyListeners$.next();
     if (this.show_) this.show$.next(false);
-    this.overlay?.close();
 
     const position = new PrizmOverlayRelativePosition({
       placement: this.prizmHintDirection,
@@ -217,6 +228,7 @@ export class PrizmHintDirective<
       .create({
         parentInjector: this.injector,
       });
+
     if (this.onHoverActive) {
       combineLatest([
         this.hoveredService.createHovered$(this.host),
@@ -227,8 +239,10 @@ export class PrizmHintDirective<
             return thisHovered || containerHovered;
           }),
           tap(hovered => this.show$.next(hovered)),
-          takeUntil(this.destroyListeners$),
-          takeUntil(this.destroy$)
+          finalize(() => {
+            this.overlay?.destroy();
+          }),
+          takeUntil(merge(this.destroyListeners$, this.destroy$))
         )
         .subscribe();
     }
@@ -243,6 +257,7 @@ export class PrizmHintDirective<
       hideDelay: this.prizmHintHideDelay,
       host: this.host,
       context: this.prizmHintContext,
+      $implicit: this.prizmHintContext,
     } as CONTEXT;
   }
 }

@@ -5,19 +5,20 @@ import { PrizmAddonDocModule, prizmDocGenerateRoutes } from '@prizm-ui/doc';
 import { RouterModule } from '@angular/router';
 import { TableBasicExampleComponent } from './examples/table-basic-example/table-basic-example.component';
 import {
-  PrizmButtonModule,
-  PrizmCheckboxModule,
-  PrizmColumnSettingsModule,
+  PrizmButtonComponent,
+  PrizmCheckboxComponent,
+  PrizmColumnSettingsComponent,
+  PrizmDropdownHostComponent,
   PrizmDropdownHostModule,
-  PrizmIconModule,
   PrizmInputTextModule,
-  PrizmLoaderModule,
-  PrizmPaginatorModule,
+  PrizmLoaderComponent,
+  PrizmPaginatorComponent,
   PrizmPanelModule,
-  PrizmScrollbarModule,
+  PrizmScrollbarComponent,
+  PrizmSelectInputComponent,
   PrizmStickyModule,
   PrizmTableModule,
-  PrizmToggleModule,
+  PrizmToggleComponent,
   PrizmWidgetModule,
 } from '@prizm-ui/components';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -45,6 +46,7 @@ import { TableColumnSettingsExampleComponent } from './examples/table-column-set
 import { PrizmStickyColumnPipe } from './examples/table-column-settings-example/pipes/column-sticky-pipe.pipe';
 import { PrizmStickyHeaderPipe } from './examples/table-column-settings-example/pipes/header-sticky-pipe.pipe';
 import { TableTrackByExampleComponent } from './examples/table-track-by-example/table-track-by-example.component';
+import { PrizmIconsFullComponent } from '@prizm-ui/icons';
 
 @NgModule({
   declarations: [
@@ -78,24 +80,26 @@ import { TableTrackByExampleComponent } from './examples/table-track-by-example/
   ],
   imports: [
     CommonModule,
-    PrizmToggleModule,
+    PrizmToggleComponent,
+    PrizmSelectInputComponent,
     PrizmAddonDocModule,
     PrizmStickyModule,
+    PrizmDropdownHostModule,
     PrizmTableModule,
     RouterModule.forChild(prizmDocGenerateRoutes(TableExampleComponent)),
     FormsModule,
     ReactiveFormsModule,
-    PrizmLoaderModule,
+    PrizmLoaderComponent,
     PrizmInputTextModule,
-    PrizmIconModule,
-    PrizmPaginatorModule,
+    PrizmPaginatorComponent,
     PrizmPanelModule,
-    PrizmScrollbarModule,
-    PrizmDropdownHostModule,
-    PrizmCheckboxModule,
-    PrizmButtonModule,
+    PrizmScrollbarComponent,
+    PrizmDropdownHostComponent,
+    PrizmCheckboxComponent,
+    PrizmButtonComponent,
     PrizmWidgetModule,
-    PrizmColumnSettingsModule,
+    PrizmColumnSettingsComponent,
+    PrizmIconsFullComponent,
   ],
 })
 export class TableExampleModule {}

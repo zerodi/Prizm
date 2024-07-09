@@ -3,10 +3,11 @@ import { PolymorphContent } from '../../../directives';
 import { PrizmInputSize } from '../../input';
 import { PrizmContextWithImplicit } from '../../../types';
 import {
-  PrizmMultiSelectItemWithChecked,
   PrizmMultiSelectIdentityMatcher,
-  PrizmMultiSelectSearchMatcher,
   PrizmMultiSelectItemStringifyFunc,
+  PrizmMultiSelectItemWithChecked,
+  PrizmMultiSelectSearchMatcher,
+  PrizmMultiSelectValueTransformer,
 } from './multi-select.model';
 
 export type PrizmMultiSelectIconContext = { opened: boolean; disabled: boolean };
@@ -14,7 +15,8 @@ export type PrizmMultiSelectIconContext = { opened: boolean; disabled: boolean }
 export interface PrizmMultiSelectOptions<T> {
   readonly items: T[];
   readonly chooseAllItem: T;
-  readonly icon: PolymorphContent<PrizmMultiSelectIconContext>;
+  readonly icon: PolymorphContent<PrizmMultiSelectIconContext> | null;
+  readonly transformer: PrizmMultiSelectValueTransformer<T, unknown>;
   readonly searchable: boolean;
   /**
    * @deprecated
@@ -52,7 +54,7 @@ export interface PrizmMultiSelectOptions<T> {
 export const PRIZM_MULTI_SELECT_DEFAULT_OPTIONS: PrizmMultiSelectOptions<unknown> = {
   items: [],
   chooseAllItem: null,
-  icon: null as any,
+  icon: null,
   searchable: false,
   forceClear: null,
   isChipsDeletable: true,
@@ -61,6 +63,7 @@ export const PRIZM_MULTI_SELECT_DEFAULT_OPTIONS: PrizmMultiSelectOptions<unknown
   minDropdownHeight: 0,
   maxDropdownHeight: 342,
   emptyContent: 'Ничего не найдено',
+  transformer: item => item,
   searchMatcher: (searchValue: string, item: unknown): boolean => {
     return !!item?.toString()?.toLowerCase().includes(searchValue?.toLowerCase());
   },
@@ -77,7 +80,6 @@ export const PRIZM_MULTI_SELECT_DEFAULT_OPTIONS: PrizmMultiSelectOptions<unknown
   valueContent: '',
   placeholder: '',
   size: 'l',
-  label: 'Выберите из списка',
 };
 
 export const PRIZM_MULTI_SELECT_OPTIONS = new InjectionToken<PrizmMultiSelectOptions<unknown>>(

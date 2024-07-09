@@ -103,6 +103,7 @@
         <th prizmTh></th>
         <th prizmTh>Токен</th>
         <th prizmTh>Описание</th>
+        <th prizmTh>Переменная*</th>
       </tr>
     </thead>
 
@@ -118,10 +119,18 @@
           <td prizmTd>
             {{ item.description }}
           </td>
+          <td class="clickable" (click)="copy(item.variable)" prizmTd>
+            {{ item.variable }}
+          </td>
         </tr>
       </ng-container>
     </tbody>
   </table>
+  <br />
+
+  <br />
+  <br />
+  <br />
 </div>
 
 <div>

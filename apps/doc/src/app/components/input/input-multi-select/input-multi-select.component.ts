@@ -62,7 +62,7 @@ export class InputInputMultiSelectComponent {
 
   readonly iconVariants: ReadonlyArray<PolymorphContent<PrizmSelectIconContext>> = [
     null as any,
-    'sort-zoom-in',
+    'magnifying-glass',
   ];
   readonly control = new UntypedFormControl();
   searchable = false;
@@ -72,6 +72,10 @@ export class InputInputMultiSelectComponent {
   isChipsDeletable = true;
   forceClearVariants: ReadonlyArray<boolean | null> = [null, false, true];
   forceClear = this.forceClearVariants[0];
+
+  public hideClearButtonHint: boolean | null = null;
+  public hideHintVariants: ReadonlyArray<boolean | null> = [null, false, true];
+
   get sizeVariants(): ReadonlyArray<PrizmInputSize> {
     return this.outer ? ['s', 'm', 'l'] : ['m', 'l'];
   }
@@ -137,6 +141,11 @@ export class InputInputMultiSelectComponent {
   readonly exampleWithObject: TuiDocExample = {
     TypeScript: import('./examples/with-object/multi-select-with-object-example.component.ts?raw'),
     HTML: import('./examples/with-object/multi-select-with-object-example.component.html?raw'),
+  };
+
+  readonly exampleWithTransformer: TuiDocExample = {
+    TypeScript: import('./examples/with-transformer/multi-select-with-transformer-example.component.ts?raw'),
+    HTML: import('./examples/with-transformer/multi-select-with-transformer-example.component.html?raw'),
   };
 
   readonly exampleValidators: TuiDocExample = {

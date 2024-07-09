@@ -1,18 +1,9 @@
-import {
-  ChangeDetectionStrategy,
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  Input,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, inject } from '@angular/core';
 import { PrizmDestroyService } from '@prizm-ui/helpers';
-import { fromEvent, merge } from 'rxjs';
-import { switchMap, take, takeUntil, tap } from 'rxjs/operators';
-
 import { PrizmInputLayoutComponent } from '../common/input-layout/input-layout.component';
 import { PrizmInputPasswordDirective } from './input-password.directive';
+import { prizmIconsEye, prizmIconsEyeClosed } from '@prizm-ui/icons/full/source';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
 
 @Component({
   selector: 'prizm-input-password-auxiliary-control',
@@ -43,7 +34,7 @@ import { PrizmInputPasswordDirective } from './input-password.directive';
       }
 
       .btn {
-        display: block;
+        display: flex;
       }
     `,
   ],
@@ -53,14 +44,18 @@ import { PrizmInputPasswordDirective } from './input-password.directive';
 export class PrizmInputPasswordDefaultControlComponent {
   @Input() inputPassword!: PrizmInputPasswordDirective;
 
+  private readonly iconsFullRegistry = inject(PrizmIconsFullRegistry);
+
   constructor(
     public readonly layout: PrizmInputLayoutComponent,
     private readonly destroy$: PrizmDestroyService,
     private readonly cdr: ChangeDetectorRef
-  ) {}
+  ) {
+    this.iconsFullRegistry.registerIcons(prizmIconsEye, prizmIconsEyeClosed);
+  }
 
   get icon(): string {
-    return this.inputPassword.passwordHidden ? 'sort-eye' : 'sort-eye-off-2';
+    return this.inputPassword.passwordHidden ? 'eye' : 'eye-closed';
   }
 
   public toggle(): void {

@@ -1,4 +1,4 @@
-<button class="chips-list__item" [disabled]="disabled">
+<button class="chips-list__item" [disabled]="disabled" [class.chips-list__item_selected]="selected">
   <div
     class="chips-name"
     #div
@@ -6,15 +6,14 @@
     [prizmHintHost]="el.nativeElement"
     [prizmHintDirection]="hintDirection"
     [prizmHintCanShow]="
-      $any(!!hintText && (div | prizmCallFunc : prizmIsTextOverflow$ : hintCanShow : null | async))
+      $any(
+        !!hintText && (div | prizmCallFunc : prizmIsTextOverflow$ : hintCanShow : false : hintText | async)
+      )
     "
   >
     <ng-content></ng-content>
   </div>
-  <button
-    class="chips-cancel prizm-icon cancel-close-small"
-    *ngIf="deletable"
-    [disabled]="disabled"
-    (click)="deleted.emit($event)"
-  ></button>
+  <button class="chips-cancel" *ngIf="deletable" [disabled]="disabled" (click)="deleted.emit($event)">
+    <prizm-icons [size]="16" name="xmark-mini"></prizm-icons>
+  </button>
 </button>

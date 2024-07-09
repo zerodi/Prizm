@@ -5,20 +5,22 @@ import {
   ElementRef,
   forwardRef,
   HostBinding,
+  inject,
   Inject,
   Injector,
   Input,
   ViewChild,
 } from '@angular/core';
-import { PrizmCallFuncModule, PrizmDestroyService, PrizmLetModule } from '@prizm-ui/helpers';
+import { PrizmCallFuncPipe, PrizmDestroyService, PrizmLetDirective } from '@prizm-ui/helpers';
 import { FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule, UntypedFormControl } from '@angular/forms';
 import {
   PolymorphContent,
-  PolymorphModule,
+  PolymorphOutletDirective,
   PrizmAutoFocusModule,
   PrizmDropdownControllerModule,
-  PrizmHintModule,
-  PrizmLifecycleModule,
+  PrizmFocusableModule,
+  PrizmHintDirective,
+  PrizmLifecycleDirective,
 } from '../../../directives';
 import { PRIZM_MULTI_SELECT_OPTIONS, PrizmMultiSelectOptions } from './multi-select.options';
 import { PrizmContextWithImplicit, PrizmNativeFocusableElement } from '../../../types';
@@ -30,7 +32,6 @@ import { prizmDefaultProp } from '@prizm-ui/core';
 import {
   PrizmDropdownHostClasses,
   PrizmDropdownHostComponent,
-  PrizmDropdownHostModule,
   PrizmDropdownHostStyles,
 } from '../dropdown-host';
 import {
@@ -38,15 +39,20 @@ import {
   PrizmMultiSelectItemStringifyFunc,
   PrizmMultiSelectItemWithChecked,
   PrizmMultiSelectSearchMatcher,
+  PrizmMultiSelectValueTransformer,
 } from './multi-select.model';
 import { PrizmOverlayOutsidePlacement } from '../../../modules/overlay/models';
-import { PrizmScrollbarModule, PrizmScrollbarVisibility } from '../../scrollbar';
-import { PrizmOverlayModule } from '../../../modules';
+import { PrizmScrollbarComponent, PrizmScrollbarVisibility } from '../../scrollbar';
 import { PrizmChipsModule } from '../../chips';
 import { CommonModule } from '@angular/common';
-import { PrizmIconModule } from '../../icon';
-import { PrizmDataListModule } from '../../data-list';
-import { PrizmCheckboxModule } from '../../checkbox';
+import { PrizmDataListComponent } from '../../data-list';
+import { PrizmCheckboxComponent } from '../../checkbox';
+import { PrizmOverlayComponent } from '../../../modules/overlay/overlay.component';
+import { prizmI18nInitWithKey } from '../../../services';
+import { PRIZM_SEARCH_TEXT } from '../../../tokens/i18n';
+import { PrizmIconsFullComponent } from '@prizm-ui/icons';
+import { prizmIconsMagnifyingGlass, prizmIconsTriangleDown } from '@prizm-ui/icons/full/source';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
 
 // TODO create abstract select component and move to abstract common logic
 @Component({
@@ -56,24 +62,25 @@ import { PrizmCheckboxModule } from '../../checkbox';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
-    PrizmOverlayModule,
-    PolymorphModule,
+    PrizmOverlayComponent,
+    PolymorphOutletDirective,
     PrizmInputTextModule,
     PrizmChipsModule,
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
-    PrizmLetModule,
-    PrizmHintModule,
-    PrizmIconModule,
-    PrizmCallFuncModule,
+    PrizmLetDirective,
+    PrizmHintDirective,
+    PrizmCallFuncPipe,
     PrizmAutoFocusModule,
-    PrizmScrollbarModule,
+    PrizmScrollbarComponent,
     PrizmDropdownControllerModule,
-    PrizmDataListModule,
-    PrizmCheckboxModule,
-    PrizmLifecycleModule,
-    PrizmDropdownHostModule,
+    PrizmDataListComponent,
+    PrizmCheckboxComponent,
+    PrizmLifecycleDirective,
+    PrizmDropdownHostComponent,
+    PrizmIconsFullComponent,
+    PrizmFocusableModule,
   ],
   providers: [
     {
@@ -83,6 +90,7 @@ import { PrizmCheckboxModule } from '../../checkbox';
     },
     PrizmDestroyService,
     { provide: PrizmInputControl, useExisting: PrizmInputMultiSelectComponent },
+    ...prizmI18nInitWithKey(PRIZM_SEARCH_TEXT, 'search'),
   ],
 })
 export class PrizmInputMultiSelectComponent<T> extends PrizmInputNgControl<T[]> implements AfterViewInit {
@@ -94,6 +102,10 @@ export class PrizmInputMultiSelectComponent<T> extends PrizmInputNgControl<T[]> 
 
   @ViewChild('dropdownHostRef')
   public readonly dropdownHostElement?: PrizmDropdownHostComponent;
+
+  @Input()
+  @prizmDefaultProp()
+  transformer: PrizmMultiSelectValueTransformer<T> = this.options.transformer;
 
   @Input() set items(data: T[]) {
     this.items$.next((data as any) ?? []);
@@ -173,7 +185,7 @@ export class PrizmInputMultiSelectComponent<T> extends PrizmInputNgControl<T[]> 
 
   @HostBinding('class.inner')
   get inner(): boolean {
-    return !this.layoutComponent.outer;
+    return !this.layoutComponent?.outer ?? false;
   }
 
   @HostBinding('class.empty')
@@ -183,10 +195,10 @@ export class PrizmInputMultiSelectComponent<T> extends PrizmInputNgControl<T[]> 
 
   @HostBinding('attr.data-size')
   get size(): string {
-    return this.layoutComponent.size;
+    return this.layoutComponent?.size ?? 'l';
   }
 
-  public readonly defaultIcon = 'chevrons-dropdown';
+  public readonly defaultIcon = 'triangle-down';
   readonly prizmIsTextOverflow$ = prizmIsTextOverflow$;
   public readonly direction: PrizmOverlayOutsidePlacement = PrizmOverlayOutsidePlacement.RIGHT;
 
@@ -213,11 +225,17 @@ export class PrizmInputMultiSelectComponent<T> extends PrizmInputNgControl<T[]> 
   override get empty(): boolean {
     return !this.value?.length;
   }
+
+  protected readonly iconsFullRegistry = inject(PrizmIconsFullRegistry);
+
   constructor(
+    @Inject(PRIZM_SEARCH_TEXT) readonly searchLabelTranslation$: Observable<string>,
     @Inject(PRIZM_MULTI_SELECT_OPTIONS) private readonly options: PrizmMultiSelectOptions<T>,
     @Inject(Injector) injector: Injector
   ) {
     super(injector);
+
+    this.iconsFullRegistry.registerIcons(prizmIconsTriangleDown, prizmIconsMagnifyingGlass);
   }
 
   public ngAfterViewInit(): void {
@@ -244,7 +262,7 @@ export class PrizmInputMultiSelectComponent<T> extends PrizmInputNgControl<T[]> 
   }
 
   protected initParentClickListener(): void {
-    this.layoutComponent.innerClick$
+    this.layoutComponent?.innerClick$
       .pipe(
         tap(() => this.opened$$.next(this.disabled ? false : !this.opened$$.value)),
         tap(() => this.changeDetectorRef.markForCheck()),
@@ -261,7 +279,9 @@ export class PrizmInputMultiSelectComponent<T> extends PrizmInputNgControl<T[]> 
           map(items => {
             return (
               items?.filter(item =>
-                (selectedItems ?? []).find(selectedItem => this.identityMatcher(selectedItem, item))
+                (selectedItems ?? []).find(selectedItem => {
+                  return this.identityMatcher(selectedItem, this.transformer(item));
+                })
               ) ?? []
             );
           })
@@ -306,7 +326,9 @@ export class PrizmInputMultiSelectComponent<T> extends PrizmInputNgControl<T[]> 
           map((items: T[]) => {
             const selectItems = items.map((item: T) => {
               return {
-                checked: !!selectedItems?.find(selected => this.identityMatcher(selected, item)),
+                checked: !!selectedItems?.find(selected =>
+                  this.identityMatcher(selected, this.transformer(item))
+                ),
                 obj: item,
               } as PrizmMultiSelectItemWithChecked<T>;
             });
@@ -359,9 +381,10 @@ export class PrizmInputMultiSelectComponent<T> extends PrizmInputNgControl<T[]> 
     if (this.isSelectAllItem(item)) {
       values = newItemState ? [...this.items] : [];
     } else {
+      const selectedValue = this.transformer(item.obj);
       values = newItemState
-        ? [...(this.value ?? []), item.obj]
-        : this.value.filter(i => !this.identityMatcher(i, item.obj));
+        ? [...(this.value ?? []), selectedValue]
+        : this.value.filter(i => !this.identityMatcher(i, selectedValue));
     }
 
     this.updateValue(values);
@@ -380,5 +403,9 @@ export class PrizmInputMultiSelectComponent<T> extends PrizmInputNgControl<T[]> 
       checked: true,
       obj: item,
     } as PrizmMultiSelectItemWithChecked<T>);
+  }
+
+  public trackBy(index: number): number {
+    return index;
   }
 }

@@ -1,6 +1,13 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { ITableProduct } from '../table-basic-example/table-basic-example.component';
 import { TABLE_EXAMPLE_DATA_1 } from '../../table-example.const';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
+import {
+  prizmIconsCircleCheckEmpty,
+  prizmIconsPencil,
+  prizmIconsTrashEmpty,
+  prizmIconsXmark,
+} from '@prizm-ui/icons/full/source';
 
 @Component({
   selector: 'prizm-table-editable-row-example',
@@ -12,8 +19,20 @@ export class TableEditableRowExampleComponent {
   public selectedItemsCodes: string[] = [];
   public columns: string[] = ['code', 'name', 'category', 'count', 'actions'];
   public products: ITableProduct[] = TABLE_EXAMPLE_DATA_1;
+  public categories: string[] = [...new Set(this.products.map(i => i.category))];
   public updatedRow: ITableProduct | null = null;
   public currentEditableRow: ITableProduct | null = null;
+
+  private readonly iconsFullRegistry = inject(PrizmIconsFullRegistry);
+
+  constructor() {
+    this.iconsFullRegistry.registerIcons(
+      prizmIconsPencil,
+      prizmIconsXmark,
+      prizmIconsCircleCheckEmpty,
+      prizmIconsTrashEmpty
+    );
+  }
 
   public onRowEditInit(item: ITableProduct): void {
     this.currentEditableRow = item;
@@ -41,6 +60,10 @@ export class TableEditableRowExampleComponent {
 
   public changeItemName<T extends keyof ITableProduct>(e: FocusEvent, key: T): void {
     const val = (e.target as HTMLInputElement).value;
+    this.changeByValue(val, key);
+  }
+
+  public changeByValue<T extends keyof ITableProduct>(val: string, key: T): void {
     this.updatedRow = { ...this.updatedRow, [key]: val } as any;
   }
 

@@ -1,5 +1,12 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { PrizmTabItem } from '@prizm-ui/components';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
+import {
+  prizmIconsLocationUser,
+  prizmIconsPi,
+  prizmIconsPieLine,
+  prizmIconsTempSelectionRadioOff,
+} from '@prizm-ui/icons/full/source';
 
 @Component({
   selector: 'prizm-panel-with-tabs',
@@ -11,21 +18,32 @@ export class PanelExampleWithTabsComponent {
   public tabs: PrizmTabItem[] = [
     {
       title: 'Вкладка 1',
-      icon: 'charts-donut',
+      icon: 'pie-line',
     },
     {
       title: 'Вкладка 2',
-      icon: 'selection-radio-off',
+      icon: 'temp-selection-radio-off',
     },
     {
       title: 'Вкладка 3',
-      icon: 'location-person-pin-circle',
+      icon: 'location-user',
     },
     {
       title: 'Вкладка 4',
-      icon: 'editor-format-textdirection-l-to-r',
+      icon: 'pi',
     },
   ];
+
+  private readonly iconsFullRegistry = inject(PrizmIconsFullRegistry);
+
+  constructor() {
+    this.iconsFullRegistry.registerIcons(
+      prizmIconsPieLine,
+      prizmIconsTempSelectionRadioOff,
+      prizmIconsLocationUser,
+      prizmIconsPi
+    );
+  }
 
   public tabCancelClick(): void {
     // do something

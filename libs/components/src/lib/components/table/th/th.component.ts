@@ -4,6 +4,7 @@ import {
   ElementRef,
   forwardRef,
   HostBinding,
+  inject,
   Inject,
   Input,
   Optional,
@@ -17,6 +18,12 @@ import { PrizmTableSortKeyException } from '../../../exceptions';
 import { PrizmTableCellSorter, PrizmTableCellSorterHandler, PrizmTableSorterService } from '../service';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
+import {
+  prizmIconsArrowUpArrowDownV,
+  prizmIconsArrowDownWideShort,
+  prizmIconsArrowUpWideShort,
+} from '@prizm-ui/icons/base/source';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -51,6 +58,8 @@ export class PrizmThComponent<T extends Partial<Record<keyof T, any>>> {
     return this.sortable || typeof this.sorter === 'function';
   }
 
+  private readonly iconsFullRegistry = inject(PrizmIconsFullRegistry);
+
   constructor(
     @Optional()
     @Inject(PrizmHeadDirective)
@@ -60,7 +69,13 @@ export class PrizmThComponent<T extends Partial<Record<keyof T, any>>> {
     @Optional()
     @Inject(forwardRef(() => PrizmTableDirective))
     readonly table: PrizmTableDirective<T> | null
-  ) {}
+  ) {
+    this.iconsFullRegistry.registerIcons(
+      prizmIconsArrowUpArrowDownV,
+      prizmIconsArrowDownWideShort,
+      prizmIconsArrowUpWideShort
+    );
+  }
 
   get key(): keyof T {
     if (!this.head) {
@@ -96,10 +111,10 @@ export class PrizmThComponent<T extends Partial<Record<keyof T, any>>> {
     return this.sorterService.changes$.pipe(
       map(() =>
         !this.isCurrent
-          ? 'arrows-swap-vert-2'
+          ? 'arrow-up-arrow-down-v'
           : this.sorterService.cellOrder(this.key as string) === 'asc'
-          ? `sort-asc-arr`
-          : `sort-desc-arr`
+          ? `arrow-down-wide-short`
+          : `arrow-up-wide-short`
       )
     );
   }

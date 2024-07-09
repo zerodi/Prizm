@@ -11,7 +11,7 @@ import { PrizmInputCommonModule } from '../common';
       [interactive]="true"
       [disabled]="!!carousel.carouselContent?.controlsState?.stepRightCtrlDisabled"
       (click)="carousel.stepRight()"
-      prizmInputIconButton="chevrons-right"
+      prizmInputIconButton="chevron-right"
     ></button>
     <button
       *ngIf="!carousel.disabled && !carousel.lightMode"
@@ -26,6 +26,7 @@ import { PrizmInputCommonModule } from '../common';
       :host {
         display: flex;
         align-items: center;
+        height: 100%;
       }
     `,
   ],

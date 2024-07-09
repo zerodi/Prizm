@@ -6,7 +6,7 @@
   [closeOnOutsideClick]="closeOnOutsideClick"
   [prizmDropdownHostWidth]="'auto'"
   [isOpen]="canOpen && !disabled && open"
-  [prizmDropdownHost]="layoutComponent.el.nativeElement"
+  [prizmDropdownHost]="layoutComponent?.el?.nativeElement"
   (isOpenChange)="onOpenChange($event)"
   prizmDropdownHostWidth="auto"
 >
@@ -171,7 +171,7 @@
     [style.--prizm-input-icon-button-width]="'24px'"
     [disabled]="!!disabled"
     (click)="focusableElementRef.focus(); onOpenChange(!open)"
-    prizmInputIconButton="date-calendar-range"
+    prizmInputIconButton="calendar-range"
   ></button>
   <!--  TODO add after create time-range modal -->
   <!--  <button-->

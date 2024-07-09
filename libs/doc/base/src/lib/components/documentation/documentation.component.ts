@@ -12,7 +12,6 @@ import {
   ViewChildren,
 } from '@angular/core';
 import {
-  EMPTY_QUERY,
   tuiHexToRgb,
   tuiIsNumber,
   tuiIsString,
@@ -28,10 +27,9 @@ import { prizmInspectAny } from '../../utils/inspect';
 import { PrizmDocDocumentationPropertyConnectorDirective } from './documentation-property-connector.directive';
 import { PRIZM_HOST_COMPONENT_INFO_TOKEN, PrizmHostComponentInfo } from './token';
 import { PrizmDocHostElementListenerService } from '../host';
-import orderBy from 'lodash-es/orderBy';
 import { PrizmDocumentationPropertyType } from '../../types/pages';
 import { UntypedFormControl, Validators } from '@angular/forms';
-import { PrizmFormControlHelpers } from '@prizm-ui/helpers';
+import { orderBy, prizmEmptyQueryList, PrizmFormControlHelpers } from '@prizm-ui/helpers';
 // @bad TODO subscribe propertiesConnectors changes
 // @bad TODO refactor to make more flexible
 @Component({
@@ -89,10 +87,12 @@ export class PrizmDocDocumentationComponent implements AfterContentInit {
   isAPI = false;
 
   @ContentChildren(PrizmDocDocumentationPropertyConnectorDirective)
-  propertiesConnectors: QueryList<PrizmDocDocumentationPropertyConnectorDirective<any>> = EMPTY_QUERY;
+  propertiesConnectors: QueryList<PrizmDocDocumentationPropertyConnectorDirective<any>> =
+    prizmEmptyQueryList();
 
   @ViewChildren(PrizmDocDocumentationPropertyConnectorDirective)
-  propertiesInnerConnectors: QueryList<PrizmDocDocumentationPropertyConnectorDirective<any>> = EMPTY_QUERY;
+  propertiesInnerConnectors: QueryList<PrizmDocDocumentationPropertyConnectorDirective<any>> =
+    prizmEmptyQueryList();
 
   activeItemIndex = 0;
   testIdPostfix = '';

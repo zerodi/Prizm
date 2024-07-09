@@ -5,20 +5,21 @@ import { PrizmBooleanHandler } from '../../../types/handler';
 import { PRIZM_ALWAYS_FALSE_HANDLER } from '../../../constants/always-false-handler';
 import { prizmInRange } from '../../../util/math/in-range';
 import {
-  PrizmHoveredModule,
+  PrizmHoveredDirective,
   PrizmInteractiveState,
-  PrizmPressedModule,
-  PrizmRepeatTimesModule,
-  PrizmScrollIntoViewModule,
+  PrizmPressedDirective,
+  PrizmRepeatTimesDirective,
+  PrizmScrollIntoViewDirective,
 } from '../../../directives';
 import { PrizmRangeState } from '../../../@core/enums/range-state';
 import { prizmDefaultProp, prizmPure } from '@prizm-ui/core';
 import { prizmI18nInitWithKey } from '../../../services/i18n.service';
 import { PRIZM_MONTHS } from '../../../tokens/i18n';
 import { PrizmAbstractTestId } from '../../../abstract/interactive';
-import { PrizmLetDirective, PrizmLetModule } from '@prizm-ui/helpers';
+import { PrizmLetDirective } from '@prizm-ui/helpers';
 import { CommonModule } from '@angular/common';
 import { PrizmMonthPipeModule } from '../../../pipes';
+import { BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 
 const ITEMS_IN_ROW = 3;
 const ROWS = 4;
@@ -29,12 +30,12 @@ const ROWS = 4;
   styleUrls: [`./primitive-month-picker.component.less`],
   standalone: true,
   imports: [
-    PrizmHoveredModule,
-    PrizmPressedModule,
-    PrizmRepeatTimesModule,
+    PrizmHoveredDirective,
+    PrizmPressedDirective,
+    PrizmRepeatTimesDirective,
     PrizmLetDirective,
     CommonModule,
-    PrizmScrollIntoViewModule,
+    PrizmScrollIntoViewDirective,
     PrizmMonthPipeModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -70,6 +71,17 @@ export class PrizmPrimitiveMonthPickerComponent extends PrizmAbstractTestId {
   @prizmDefaultProp()
   disabledItemHandler: PrizmBooleanHandler<number> = PRIZM_ALWAYS_FALSE_HANDLER;
 
+  @Input()
+  @prizmDefaultProp()
+  rangeState: PrizmRangeState = PrizmRangeState.Single;
+
+  @Input()
+  @prizmDefaultProp()
+  set intervalSupport(value: BooleanInput) {
+    this._intervalSupport = coerceBooleanProperty(value);
+  }
+  private _intervalSupport = false;
+
   @Output()
   readonly monthClick = new EventEmitter<PrizmMonth>();
 
@@ -102,10 +114,11 @@ export class PrizmPrimitiveMonthPickerComponent extends PrizmAbstractTestId {
   }
 
   public getItemState(item: number): PrizmInteractiveState | null {
-    const { disabledItemHandler, max, pressedItem, hoveredItem } = this;
+    const { disabledItemHandler, max, min, pressedItem, hoveredItem } = this;
 
     if (
       (max.month < item && max.year <= this.currentYear) ||
+      (min.month > item && min.year >= this.currentYear) ||
       (disabledItemHandler !== PRIZM_ALWAYS_FALSE_HANDLER && disabledItemHandler(item))
     ) {
       return PrizmInteractiveState.Disabled;
@@ -123,7 +136,7 @@ export class PrizmPrimitiveMonthPickerComponent extends PrizmAbstractTestId {
   }
 
   public getItemRange(item: number): PrizmRangeState | null {
-    const { value, hoveredItem } = this;
+    const { value } = this;
 
     if (value === null) {
       return null;
@@ -133,51 +146,27 @@ export class PrizmPrimitiveMonthPickerComponent extends PrizmAbstractTestId {
       return value.month === item && value.year === this.currentYear ? PrizmRangeState.Single : null;
     }
 
-    if (
-      this.value instanceof PrizmDayRange &&
-      this.value.isMonthInRange(new PrizmMonth(this.currentYear, item))
-    ) {
+    if (this._intervalSupport) {
+      return value.from.month === item && value.from.year === this.currentYear
+        ? PrizmRangeState.Start
+        : value.to.month === item && value.from.year === this.currentYear
+        ? PrizmRangeState.End
+        : null;
+    }
+
+    if (this.rangeState === PrizmRangeState.Start && value.from.month === item) {
+      return PrizmRangeState.Start;
+    }
+
+    if (this.rangeState === PrizmRangeState.End && value.to.month === item) {
+      return PrizmRangeState.End;
+    }
+
+    if (value.from.monthSame(value.to) && value.from.month === item && value.from.year === this.currentYear) {
       return PrizmRangeState.Single;
     }
 
-    if (
-      (value.from.month === item && !value.from.monthSame(value.to)) ||
-      (hoveredItem !== null &&
-        hoveredItem > value.from.month &&
-        value.from.month === item &&
-        value.from.monthSame(value.to)) ||
-      (hoveredItem !== null &&
-        hoveredItem === item &&
-        hoveredItem === value.from.month &&
-        value.from.monthSame(value.to))
-    ) {
-      return PrizmRangeState.Single;
-
-      // TODO finish it after add support intervals
-      // return PrizmRangeState.Start;
-    }
-
-    // TODO finish it after add support intervals
-    // if (
-    //     (value.to.month === item && !value.from.monthSame(value.to)) ||
-    //     (hoveredItem !== null &&
-    //         hoveredItem < value.from.month &&
-    //         value.from.month === item &&
-    //         value.from.monthSame(value.to)) ||
-    //     (hoveredItem !== null &&
-    //         hoveredItem === item &&
-    //         hoveredItem > value.from.month &&
-    //         value.from.monthSame(value.to))
-    // ) {
-    //   return PrizmRangeState.Single;
-    //
-    //
-    //   // return PrizmRangeState.End;
-    // }
-
-    return value.from.monthSame(value.to) && value.from.month === item && value.from.year === this.currentYear
-      ? PrizmRangeState.Single
-      : null;
+    return null;
   }
 
   public itemIsToday(item: number): boolean {
@@ -188,7 +177,7 @@ export class PrizmPrimitiveMonthPickerComponent extends PrizmAbstractTestId {
    * not support interval
    * */
   public itemIsInterval(item: number): boolean {
-    return false;
+    return this._intervalSupport ? this.itemIsIntervalNew(item) : false;
   }
 
   /**

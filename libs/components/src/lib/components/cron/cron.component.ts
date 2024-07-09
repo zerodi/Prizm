@@ -1,7 +1,9 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   EventEmitter,
+  inject,
   Inject,
   Input,
   OnInit,
@@ -11,7 +13,18 @@ import { PrizmDestroyService, PrizmLetDirective } from '@prizm-ui/helpers';
 import { PrizmSwitcherItem } from '../switcher';
 import { UntypedFormControl } from '@angular/forms';
 import { PrizmCronService, prizmI18nInitWithKey } from '../../services';
-import { distinctUntilChanged, filter, first, map, skip, startWith, takeUntil, tap } from 'rxjs/operators';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  filter,
+  first,
+  map,
+  observeOn,
+  skip,
+  startWith,
+  takeUntil,
+  tap,
+} from 'rxjs/operators';
 import { PrizmCronUiSecondState } from './cron-ui-second.state';
 import { PrizmCronUiMinuteState } from './cron-ui-minute.state';
 import { PrizmCronUiHourState } from './cron-ui-hour.state';
@@ -21,16 +34,19 @@ import { prizmIsTextOverflow } from '../../util';
 import { PrizmCronPeriod, PrizmCronTabItem, PrizmCronTabSpecifiedList } from './model';
 import { PrizmCronUiDayState } from './cron-ui-day.state';
 import { prizmDefaultProp } from '@prizm-ui/core';
-import { combineLatest, concat, Observable, timer } from 'rxjs';
+import { asapScheduler, BehaviorSubject, combineLatest, concat, Observable, timer } from 'rxjs';
 import { PRIZM_LANGUAGE, PrizmLanguage, PrizmLanguageCron } from '@prizm-ui/i18n';
 import { prizmCronHRToString } from '../cron-human-readable/human-readable/crons-i18n';
-import { PRIZM_CRON } from '../../tokens';
+import { PRIZM_CALENDAR_MONTHS, PRIZM_CRON, PRIZM_MONTHS } from '../../tokens';
 import { PrizmAbstractTestId } from '../../abstract/interactive';
 import { BooleanInput, coerceBooleanProperty } from '@angular/cdk/coercion';
 import { PrizmCronMonthPipe } from './pipes/cron-month.pipe';
 import { PrizmCronWeekPipe } from './pipes/cron-week.pipe';
 import { PrizmCronInnerModule } from './cron-inner.module';
 import { PrizmCronHumanReadablePipe } from '../cron-human-readable';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
+import { prizmIconsCopy } from '@prizm-ui/icons/full/source';
+import { AsyncPipe } from '@angular/common';
 
 @Component({
   selector: 'prizm-cron',
@@ -49,11 +65,20 @@ import { PrizmCronHumanReadablePipe } from '../cron-human-readable';
     PrizmCronUiYearState,
     PrizmCronUiMinuteState,
     ...prizmI18nInitWithKey(PRIZM_CRON, 'cron'),
+    ...prizmI18nInitWithKey(PRIZM_MONTHS, 'months'),
+    ...prizmI18nInitWithKey(PRIZM_CALENDAR_MONTHS, 'shortCalendarMonths'),
   ],
   standalone: true,
-  imports: [PrizmCronHumanReadablePipe, PrizmCronInnerModule, PrizmCronMonthPipe, PrizmCronWeekPipe],
+  imports: [
+    AsyncPipe,
+    PrizmCronHumanReadablePipe,
+    PrizmCronInnerModule,
+    PrizmCronMonthPipe,
+    PrizmCronWeekPipe,
+  ],
 })
 export class PrizmCronComponent extends PrizmAbstractTestId implements OnInit {
+  @Input() public cronTitle: string | null = null;
   @Input() public set value(value: string) {
     if (!value) return;
     this.cron.updateWith(value);
@@ -132,47 +157,18 @@ export class PrizmCronComponent extends PrizmAbstractTestId implements OnInit {
 
   @Input()
   set selected(selected: PrizmCronTabItem) {
-    this.selectedSwitcherIdx = this.switchers.findIndex(i => i.id === selected);
+    this.selected$.next(selected);
   }
 
   @Input() specifiedList: PrizmCronTabSpecifiedList | null = null;
   @Input() set tabs(tabs: PrizmCronTabItem[]) {
-    this.switchers = this.switchers.map(i => {
-      i.hide = !tabs.includes(i.id as any);
-      return i;
-    });
-
-    if (tabs.length && !tabs.includes(this.selected)) {
-      this.selectedChange.emit((this.selected = tabs[0]));
-    }
+    this.tabs$.next([...tabs]);
   }
 
-  public switchers: PrizmSwitcherItem<PrizmCronTabItem>[] = [
-    {
-      title: 'Секунды',
-      id: 'second',
-    },
-    {
-      title: 'Минуты',
-      id: 'minute',
-    },
-    {
-      title: 'Часы',
-      id: 'hour',
-    },
-    {
-      title: 'Дни',
-      id: 'day',
-    },
-    {
-      title: 'Месяцы',
-      id: 'month',
-    },
-    {
-      title: 'Годы',
-      id: 'year',
-    },
-  ];
+  private tabs$: BehaviorSubject<PrizmCronTabItem[]> = new BehaviorSubject<PrizmCronTabItem[]>([]);
+  private selected$: BehaviorSubject<PrizmCronTabItem> = new BehaviorSubject<PrizmCronTabItem>('second');
+
+  public switchers$$ = new BehaviorSubject<PrizmSwitcherItem<PrizmCronTabItem>[]>([]);
 
   initialValue!: string;
   public readonly value$ = this.cron.value$;
@@ -183,6 +179,10 @@ export class PrizmCronComponent extends PrizmAbstractTestId implements OnInit {
   public indefinitely = false;
   public selectedSwitcherIdx = 0;
   public readonly prizmIsTextOverflow = prizmIsTextOverflow;
+
+  private readonly iconsFullRegistry = inject(PrizmIconsFullRegistry);
+
+  private readonly cdRef = inject(ChangeDetectorRef);
 
   constructor(
     @Inject(PRIZM_LANGUAGE)
@@ -198,6 +198,8 @@ export class PrizmCronComponent extends PrizmAbstractTestId implements OnInit {
     private readonly cronUiDayState: PrizmCronUiDayState
   ) {
     super();
+
+    this.iconsFullRegistry.registerIcons(prizmIconsCopy);
   }
 
   public ngOnInit(): void {
@@ -210,6 +212,63 @@ export class PrizmCronComponent extends PrizmAbstractTestId implements OnInit {
     this.cronUiMinuteState.init();
     this.initEndDateStateChanger();
     this.saveInitialValue();
+
+    combineLatest([this.cronI18n$, this.tabs$])
+      .pipe(
+        observeOn(asapScheduler),
+        tap(([cronI18n, tabs]) => {
+          const switchers = Object.entries(cronI18n.switcherTitles).map(([key, value]) => ({
+            title: value,
+            id: key,
+          })) as PrizmSwitcherItem<PrizmCronTabItem>[];
+
+          if (tabs.length) {
+            switchers.map(i => {
+              i.hide = !tabs.includes(i.id as any);
+              return i;
+            });
+          }
+
+          this.switchers$$.next(switchers);
+        }),
+        tap(() => this.cdRef.markForCheck()),
+        takeUntil(this.destroy$)
+      )
+      .subscribe();
+
+    this.tabs$
+      .pipe(
+        observeOn(asapScheduler),
+        tap(tabs => {
+          if (tabs.length) {
+            const switchers = this.switchers$$.value.map(i => {
+              i.hide = !tabs.includes(i.id as any);
+              return i;
+            });
+            this.switchers$$.next(switchers);
+          }
+        }),
+        tap(() => this.cdRef.markForCheck()),
+        takeUntil(this.destroy$)
+      )
+      .subscribe();
+
+    combineLatest([this.selected$, this.tabs$, this.switchers$$])
+      .pipe(
+        debounceTime(0),
+        tap(([selected, tabs, switchers]) => {
+          this.selectedSwitcherIdx = switchers.findIndex(i => i.id === selected);
+
+          if (tabs.length && !tabs.includes(selected)) {
+            this.selectedChange.emit(tabs[0]);
+          } else {
+            this.selectedChange.emit(selected);
+          }
+        }),
+        tap(() => this.cdRef.markForCheck()),
+        takeUntil(this.destroy$)
+      )
+      .subscribe();
   }
 
   private endDateStateCorrector(): void {
@@ -306,7 +365,7 @@ export class PrizmCronComponent extends PrizmAbstractTestId implements OnInit {
   }
 
   public indexChanged(index: number): void {
-    const selected = this.switchers.find((_, i) => i === index);
-    this.selectedChange.emit((this.selected = selected?.id as any));
+    const selected = this.switchers$$.value.find((_, i) => i === index);
+    this.selected = selected?.id as any;
   }
 }

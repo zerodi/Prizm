@@ -33,7 +33,8 @@ export class PrizmFileUploadExampleComponent implements OnDestroy {
 
   readonly setupModule: RawLoaderContent = import('./examples/setup-module.md?raw');
 
-  userContent = 'текст пользователя';
+  userContentRu = 'текст пользователя';
+  userContentEng = 'user text';
 
   accept = 'image/*';
   acceptVariants: Array<string> = ['image/*', '.pdf', '.doc, .docx'];
@@ -46,11 +47,13 @@ export class PrizmFileUploadExampleComponent implements OnDestroy {
   files: Array<File> = [];
   disabled = false;
 
+  constructor(private readonly toastService: PrizmToastService, private http: HttpClient) {}
+
   public onFilesChange(files: Array<File>): void {
     this.files = files;
   }
 
-  public onfilesValidationErrors(errors: PrizmFileValidationErrors): void {
+  public onfilesValidationErrors(errors: { [key: string]: PrizmFileValidationErrors }): void {
     for (const filename of Object.keys(errors)) {
       this.toastService.create(JSON.stringify(errors[filename]), {
         title: `Файл ${filename} не прошел валидацию`,
@@ -178,8 +181,6 @@ export class PrizmFileUploadExampleComponent implements OnDestroy {
         }
       );
   }
-
-  constructor(private readonly toastService: PrizmToastService, private http: HttpClient) {}
 
   public ngOnDestroy(): void {
     this.progress$$.complete();

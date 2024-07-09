@@ -1,12 +1,8 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RawLoaderContent, TuiDocExample } from '@prizm-ui/doc';
-import {
-  PolymorphContent,
-  PrizmAppearance,
-  PrizmAppearanceType,
-  PrizmContent,
-  PrizmSize,
-} from '@prizm-ui/components';
+import { PolymorphContent, PrizmAppearance, PrizmAppearanceType, PrizmSize } from '@prizm-ui/components';
+import { PRIZM_ICONS_NAMES } from '@prizm-ui/icons/base/names';
+import { prizmIconsFullProvideLazyLoader } from '@prizm-ui/icons-loader/full';
 
 @Component({
   selector: 'prizm-split-button-example',
@@ -28,6 +24,7 @@ import {
       }
     `,
   ],
+  providers: [prizmIconsFullProvideLazyLoader()],
 })
 export class SplitButtonComponent {
   sizeVariants: ReadonlyArray<PrizmSize> = ['s', 'm', 'xm', 'l', 'xl'];
@@ -36,7 +33,7 @@ export class SplitButtonComponent {
   public clickIcon!: void;
   public clickButton!: void;
 
-  iconVariants: ReadonlyArray<PolymorphContent<{ size: PrizmSize }>> = ['chevrons-dropdown', ''];
+  iconVariants: ReadonlyArray<PolymorphContent<{ size: PrizmSize }>> = [...PRIZM_ICONS_NAMES];
   icon: PolymorphContent<{ size: PrizmSize }> = this.iconVariants[0];
   iconRight: PolymorphContent<{ size: PrizmSize }> = this.iconVariants[0];
   appearanceVariants: ReadonlyArray<PrizmAppearance> = [

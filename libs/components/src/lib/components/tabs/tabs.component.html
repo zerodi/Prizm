@@ -1,7 +1,7 @@
 <div class="container">
   <div class="control" [class.control_active]="isLeftBtnActive">
     <button
-      [icon]="'arrows-chevron-left'"
+      [icon]="'angle-left'"
       (click)="decrease()"
       prizmIconButton
       appearanceType="ghost"
@@ -18,7 +18,7 @@
       prizmDropdownHostWidth="auto"
     >
       <button
-        [icon]="'settings-more-vert'"
+        [icon]="'ellipsis-v'"
         (click)="openLeft = !openLeft"
         prizmIconButton
         appearanceType="ghost"
@@ -42,7 +42,7 @@
       prizmDropdownHostWidth="auto"
     >
       <button
-        [icon]="'settings-more-vert'"
+        [icon]="'ellipsis-v'"
         (click)="openRight = !openRight"
         prizmIconButton
         appearanceType="ghost"
@@ -51,7 +51,7 @@
       ></button>
     </prizm-dropdown-host>
     <button
-      [icon]="'arrows-chevron-right'"
+      [icon]="'angle-right'"
       (click)="increase()"
       prizmIconButton
       appearanceType="ghost"
@@ -62,21 +62,54 @@
 
   <ng-template #dropdown>
     <prizm-data-list>
-      <div class="tabs-column prizm-tab-menu-container">
+      <div class="tabs-column prizm-tab-menu-container" *prizmLet="tabElements | prizmIconTabs as hasIcons">
         <ng-container *ngFor="let tabElement of tabElements; let i = index">
           <ng-container *ngIf="tabElement as tab">
-            <prizm-tab
-              *prizmLet="{ inMenuIdx: i }"
-              [type]="tab.type"
-              [content]="$any(tab.content)"
-              [icon]="tab.icon"
-              [closable]="$any(tab.closable)"
+            <prizm-listing-item
               [disabled]="$any(tab.disabled)"
-              [attr.dropdown-tab]="true"
-              (click)="clickTab()"
-              (closeTab)="closeTab($any(tabElement.idx))"
+              [selected]="activeTabIndex === i"
+              (click)="clickTab(i)"
             >
-            </prizm-tab>
+              <ng-container *ngIf="tab.icon || hasIcons" leftBox>
+                <ng-container *ngIf="tab.icon as icon; else placeholder">
+                  <ng-container *polymorphOutlet="icon; context: $any({ idx: i, tab: tab })">
+                    <prizm-icons-full class="icon icon__mark" [size]="16" [name]="$any(icon)">
+                    </prizm-icons-full>
+                  </ng-container>
+                </ng-container>
+                <ng-template #placeholder>
+                  <div class="icon-placeholder"></div>
+                </ng-template>
+              </ng-container>
+
+              <ng-container>
+                <div
+                  class="tab-content"
+                  #elem
+                  [prizmHint]="tab.content"
+                  [prizmHintCanShow]="$any(elem | prizmCallFunc : prizmIsTextOverflow$ | async)"
+                >
+                  {{ tab.content }}
+                </div>
+              </ng-container>
+
+              <ng-container rightBox>
+                <prizm-counter
+                  *ngIf="tab.count"
+                  [value]="tab.count"
+                  [status]="tab._counterOptions.status"
+                  [disabled]="tab._counterOptions.disabled"
+                  [maxValue]="tab._counterOptions.maxValue"
+                ></prizm-counter>
+                <prizm-icons-full
+                  class="icon"
+                  [class.hidden]="!tab.closable"
+                  [name]="'xmark'"
+                  [size]="16"
+                  (click)="closeTab(tabElement.idx!)"
+                ></prizm-icons-full>
+              </ng-container>
+            </prizm-listing-item>
           </ng-container>
         </ng-container>
       </div>

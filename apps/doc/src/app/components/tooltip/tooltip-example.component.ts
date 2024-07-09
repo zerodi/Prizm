@@ -3,14 +3,14 @@ import { RawLoaderContent, TuiDocExample } from '@prizm-ui/doc';
 import {
   PolymorphContent,
   PRIZM_TOOLTIP_DEFAULT_OPTIONS,
-  PrizmOverlayOutsidePlacement,
-  PrizmTooltipOptions,
-  PrizmAppearanceType,
   PrizmAppearance,
-  IconDefs,
+  PrizmAppearanceType,
   PrizmDialogSize,
+  PrizmOverlayOutsidePlacement,
   PrizmSize,
+  PrizmTooltipOptions,
 } from '@prizm-ui/components';
+import { PRIZM_ICONS_NAMES } from '@prizm-ui/icons/base/names';
 
 @Component({
   selector: 'prizm-tooltip-example',
@@ -31,10 +31,7 @@ export class TooltipExampleComponent {
   public hoveredChange = false;
   public focusVisibleChange = false;
 
-  iconVariants: ReadonlyArray<PolymorphContent<{ size: PrizmSize }>> = [
-    '',
-    ...IconDefs.reduce((a: any[], c) => a.concat(c.data), []),
-  ];
+  iconVariants: ReadonlyArray<PolymorphContent<{ size: PrizmSize }>> = ['', ...PRIZM_ICONS_NAMES];
   icon: PolymorphContent<{ size: PrizmSize }> = this.iconVariants[0];
   iconRight: PolymorphContent<{ size: PrizmSize }> = this.iconVariants[0];
   appearanceVariants: ReadonlyArray<PrizmAppearance> = [
@@ -90,6 +87,11 @@ export class TooltipExampleComponent {
   readonly exampleWithTemplate: TuiDocExample = {
     TypeScript: import('./examples/with-template/tooltip-with-template-example.component.ts?raw'),
     HTML: import('./examples/with-template/tooltip-with-template-example.component.html?raw'),
+  };
+
+  readonly exampleWithContext: TuiDocExample = {
+    TypeScript: import('./examples/with-custom-context/tooltip-with-custom-context-example.component.ts?raw'),
+    HTML: import('./examples/with-custom-context/tooltip-with-custom-context-example.component.html?raw'),
   };
 
   readonly exampleWithComponent: TuiDocExample = {

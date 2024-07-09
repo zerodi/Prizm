@@ -3,17 +3,27 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  inject,
   Input,
   Output,
   TemplateRef,
 } from '@angular/core';
 import { InternalPrizmNavigationMenuItem, ViewMode } from '../../interfaces';
 import { PrizmAbstractTestId } from '@prizm-ui/core';
-import { PrizmIconsSvgModule } from '@prizm-ui/icons';
+import { PrizmIconsSvgComponent } from '@prizm-ui/icons';
 import { NgIf, NgTemplateOutlet } from '@angular/common';
-import { PrizmButtonModule } from '../../../button/button.module';
 import { PrizmInputCommonModule } from '../../../input/common/input-common.module';
 import { PrizmHoveredModule } from '../../../../directives/hovered';
+import { PrizmHintDirective } from '../../../../directives';
+import { PrizmButtonComponent } from '../../../button';
+import { prizmIsTextOverflow } from '../../../../util';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
+import {
+  prizmIconsArrowTurnLeftUp,
+  prizmIconsArrowUpToDottedLine,
+  prizmIconsChevronDown,
+  prizmIconsChevronRight,
+} from '@prizm-ui/icons/full/source';
 
 @Component({
   selector: 'prizm-navigation-menu-item',
@@ -22,12 +32,13 @@ import { PrizmHoveredModule } from '../../../../directives/hovered';
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
-    PrizmIconsSvgModule,
+    PrizmIconsSvgComponent,
     PrizmHoveredModule,
     NgIf,
     NgTemplateOutlet,
     PrizmInputCommonModule,
-    PrizmButtonModule,
+    PrizmButtonComponent,
+    PrizmHintDirective,
   ],
 })
 export class PrizmNavigationMenuItemComponent<T> extends PrizmAbstractTestId {
@@ -39,12 +50,15 @@ export class PrizmNavigationMenuItemComponent<T> extends PrizmAbstractTestId {
   @Input() itemExtraTemplate!: TemplateRef<unknown>;
   @Input() isExpandable!: boolean;
   @Input() isExpanded!: boolean;
+  @Input() isActiveNode!: boolean;
   @Input() isActive!: boolean;
   @Input() item!: InternalPrizmNavigationMenuItem<T>;
   @Input() mode!: ViewMode;
   @Input() showGoToButtons!: boolean;
 
-  isHovered = false;
+  private readonly iconsFullRegistry = inject(PrizmIconsFullRegistry);
+  public readonly prizmIsTextOverflow = prizmIsTextOverflow;
+  public isHovered = false;
 
   get expandButtonVisible(): boolean {
     return this.mode === 'rubricator' ? !!this.item.isRubricator : this.isExpandable;
@@ -58,5 +72,12 @@ export class PrizmNavigationMenuItemComponent<T> extends PrizmAbstractTestId {
 
   constructor(public cdr: ChangeDetectorRef) {
     super();
+
+    this.iconsFullRegistry.registerIcons(
+      prizmIconsArrowTurnLeftUp,
+      prizmIconsArrowUpToDottedLine,
+      prizmIconsChevronDown,
+      prizmIconsChevronRight
+    );
   }
 }

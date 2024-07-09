@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RawLoaderContent, TuiDocExample } from '@prizm-ui/doc';
 import {
-  IconDefs,
   PrizmTabCanOpen,
   PrizmTabComponent,
   PrizmTabCounterOptions,
@@ -9,6 +8,7 @@ import {
   PrizmTabType,
 } from '@prizm-ui/components';
 import { of } from 'rxjs';
+import { PRIZM_ICONS_NAMES } from '@prizm-ui/icons/base/names';
 
 @Component({
   selector: 'prizm-tabs-example',
@@ -31,7 +31,7 @@ export class TabsExampleComponent {
   public canOpen: PrizmTabCanOpen = this.canOpenVariants[0];
   public sizeVariants: PrizmTabSize[] = ['s', 'adaptive'];
   public content = 'Big Tab #1';
-  iconVariants: string[] = ['', ...IconDefs.reduce((a: any[], c) => a.concat(c.data), [])];
+  iconVariants: string[] = ['', ...PRIZM_ICONS_NAMES];
   icon: string = this.iconVariants[0];
   closeIcon: string | null = null;
   public closable = false;
@@ -43,6 +43,7 @@ export class TabsExampleComponent {
     maxValue: 99,
     disabled: false,
   };
+  public prizmTabButtonMaxWidth = 'unset';
 
   public counterOptionsVariants: Partial<PrizmTabCounterOptions>[] = [
     this.counterOptions,
@@ -58,6 +59,7 @@ export class TabsExampleComponent {
     },
     {
       status: 'success',
+      disabled: false,
     },
     {
       status: 'warning',

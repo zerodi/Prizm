@@ -8,8 +8,10 @@ import {
   Host,
   HostListener,
   Inject,
+  inject,
   Injector,
   Input,
+  OnDestroy,
   Optional,
   Output,
   TemplateRef,
@@ -17,16 +19,15 @@ import {
 } from '@angular/core';
 import {
   PrizmOverlayControl,
-  PrizmOverlayModule,
   PrizmOverlayRelativePosition,
   PrizmOverlayService,
 } from '../../../modules/overlay';
 import {
   PolymorphContent,
   PolymorphModule,
-  PrizmDropdownZoneModule,
-  PrizmLifecycleModule,
-  PrizmMutationObserveModule,
+  PrizmDropdownZoneDirective,
+  PrizmLifecycleDirective,
+  PrizmMutationObserveDirective,
   PrizmZoneEventModule,
 } from '../../../directives';
 import { debounceTime, delay, distinctUntilChanged, skip, takeUntil, tap } from 'rxjs/operators';
@@ -46,28 +47,31 @@ import { PrizmOverlayOutsidePlacement } from '../../../modules/overlay/models';
 import { PrizmAbstractTestId } from '../../../abstract/interactive';
 import { PrizmDropdownHostControlDirective } from './dropdown-host-control.directive';
 import { PrizmThemeModule } from '@prizm-ui/theme';
+import { PrizmZoneEventService } from '../../../directives/zone-event/zone-event.service';
+import { PrizmOverlayComponent } from '../../../modules/overlay/overlay.component';
+import { PrizmDropdownHostDirective } from './dropdown-host.directive';
 
 @Component({
   selector: 'prizm-dropdown-host',
   templateUrl: './dropdown-host.component.html',
   styleUrls: ['./dropdown-host.component.less'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  providers: [PrizmDestroyService],
+  providers: [PrizmDestroyService, PrizmZoneEventService],
   exportAs: 'prizm-dropdown-host',
   standalone: true,
   imports: [
     PrizmDropdownHostControlDirective,
     CommonModule,
-    PrizmOverlayModule,
+    PrizmOverlayComponent,
     PrizmThemeModule,
-    PrizmLifecycleModule,
+    PrizmLifecycleDirective,
     PrizmZoneEventModule,
     PolymorphModule,
-    PrizmDropdownZoneModule,
-    PrizmMutationObserveModule,
+    PrizmDropdownZoneDirective,
+    PrizmMutationObserveDirective,
   ],
 })
-export class PrizmDropdownHostComponent extends PrizmAbstractTestId implements AfterViewInit {
+export class PrizmDropdownHostComponent extends PrizmAbstractTestId implements AfterViewInit, OnDestroy {
   @Input() content!: PolymorphContent<PrizmDropdownHostContext>;
 
   @Input()
@@ -95,7 +99,7 @@ export class PrizmDropdownHostComponent extends PrizmAbstractTestId implements A
   closeOnOutsideClick = true;
 
   @Input()
-  prizmDropdownHost!: HTMLElement;
+  prizmDropdownHost?: HTMLElement | null;
 
   @Input()
   @prizmDefaultProp()
@@ -109,10 +113,6 @@ export class PrizmDropdownHostComponent extends PrizmAbstractTestId implements A
 
   private _prizmDropdownHostWidth: PrizmDropdownHostWidth = this.options.width;
 
-  @Input()
-  @prizmDefaultProp()
-  prizmDropdownHostCloseOnBackdropClick = this.options.closeOnBackdrop;
-
   override readonly testId_ = 'ui_dropdown_host';
 
   readonly itemForListener = new Set<HTMLElement>();
@@ -120,7 +120,8 @@ export class PrizmDropdownHostComponent extends PrizmAbstractTestId implements A
   private destroyReCalc$ = new Subject<void>();
   private _autoReposition = this.options.autoReposition;
   @Input() set autoReposition(state: boolean) {
-    this.position?.updateConfig({ autoReposition: (this._autoReposition = state) });
+    this._autoReposition = state;
+    this.position?.updateConfig({ autoReposition: this._autoReposition });
   }
   get autoReposition(): boolean {
     return this._autoReposition;
@@ -128,7 +129,8 @@ export class PrizmDropdownHostComponent extends PrizmAbstractTestId implements A
 
   private _placement: PrizmOverlayOutsidePlacement = this.options.placement;
   @Input() set placement(place: PrizmOverlayOutsidePlacement) {
-    this.position?.updateConfig({ placement: place });
+    this._placement = place ?? 'bl';
+    this.position?.updateConfig({ placement: this._placement });
   }
   get placement(): PrizmOverlayOutsidePlacement {
     return this._placement;
@@ -147,6 +149,10 @@ export class PrizmDropdownHostComponent extends PrizmAbstractTestId implements A
   @Input() dropdownClasses: PrizmDropdownHostClasses;
   @ViewChild('temp') temp!: TemplateRef<HTMLDivElement>;
 
+  private get host() {
+    return this.prizmDropdownHost ?? this.dropdownHostDirective?.el ?? this.el.nativeElement;
+  }
+
   @Output() readonly isOpenChange = new EventEmitter<boolean>();
   private overlay!: PrizmOverlayControl;
   protected isOpen$ = new BehaviorSubject(false);
@@ -159,8 +165,13 @@ export class PrizmDropdownHostComponent extends PrizmAbstractTestId implements A
 
   @ViewChild('contentBlockRef') contentBlockRef!: ElementRef;
 
+  private readonly dropdownHostDirective = inject(PrizmDropdownHostDirective, {
+    optional: true,
+  });
+
   constructor(
     public readonly prizmOverlayService: PrizmOverlayService,
+    public readonly zoneEventService: PrizmZoneEventService,
     @Inject(PrizmDropdownHostControlDirective)
     @Host()
     @Optional()
@@ -184,6 +195,10 @@ export class PrizmDropdownHostComponent extends PrizmAbstractTestId implements A
   public ngAfterViewInit(): void {
     this.initOverlay();
     this.initClickListener();
+  }
+
+  public ngOnDestroy() {
+    this.overlay.destroy();
   }
 
   public updateWidth(): void {
@@ -236,12 +251,14 @@ export class PrizmDropdownHostComponent extends PrizmAbstractTestId implements A
     this.position = new PrizmOverlayRelativePosition({
       placement: this.placement,
       autoReposition: this.autoReposition,
-      element: this.prizmDropdownHost ?? this.el.nativeElement,
+      element: this.host,
     });
     this.updateWidth();
     this.overlay = this.prizmOverlayService
       .position(this.position)
-      .config({ wrapperClass: this.wrapper_class })
+      .config({
+        wrapperClass: this.wrapper_class,
+      })
       .content(this.temp)
       .create({
         parentInjector: this.injector,

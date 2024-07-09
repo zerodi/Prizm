@@ -7,10 +7,9 @@ import { RouterModule } from '@angular/router';
 import {
   PrizmBreadcrumbsModule,
   PrizmButtonModule,
-  PrizmIconModule,
-  PrizmPanelModule,
+  PrizmPanelComponent,
   PrizmTabsModule,
-  PrizmToggleModule,
+  PrizmToggleComponent,
 } from '@prizm-ui/components';
 import { PanelExampleWithTabsComponent } from './examples/panel-example-with-tabs/panel-example-with-tabs.component';
 import { PanelExampleWithPagesComponent } from './examples/panel-example-with-pages/panel-example-with-pages.component';
@@ -35,11 +34,10 @@ import { FormsModule } from '@angular/forms';
     CommonModule,
     PrizmAddonDocModule,
     RouterModule.forChild(prizmDocGenerateRoutes(PanelExampleComponent)),
-    PrizmPanelModule,
+    PrizmPanelComponent,
     PrizmButtonModule,
-    PrizmIconModule,
     FormsModule,
-    PrizmToggleModule,
+    PrizmToggleComponent,
     PrizmBreadcrumbsModule,
     PrizmTabsModule,
   ],

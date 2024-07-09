@@ -1,7 +1,9 @@
-import { ChangeDetectionStrategy, Component, TemplateRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, TemplateRef, inject } from '@angular/core';
 import { RawLoaderContent, TuiDocExample } from '@prizm-ui/doc';
 import { PolymorphContent, PrizmWidgetIcons } from '@prizm-ui/components';
 import { prizmPure } from '@prizm-ui/core';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
+import { prizmIconsUserCircle, prizmIconsUsersKey } from '@prizm-ui/icons/full/source';
 
 @Component({
   selector: 'prizm-widget-example',
@@ -14,9 +16,9 @@ export class WidgetExampleComponent {
   public title = 'Заголовок виджета';
   public icons: PrizmWidgetIcons[] = [];
   public iconVariants: ReadonlyArray<PolymorphContent | null> = [
-    ['account-circle', 'account-circle', 'account-key'],
+    ['user-circle', 'user-circle', 'users-key'],
     '',
-    ['account-key'],
+    ['users-key'],
   ];
   public content = 'Содержимое виджета';
 
@@ -36,6 +38,12 @@ export class WidgetExampleComponent {
     TypeScript: import('./examples/with-templates/widget-with-templates-example.component.ts?raw'),
     HTML: import('./examples/with-templates/widget-with-templates-example.component.html?raw'),
   };
+
+  private readonly iconsFullRegistry = inject(PrizmIconsFullRegistry);
+
+  constructor() {
+    this.iconsFullRegistry.registerIcons(prizmIconsUserCircle, prizmIconsUsersKey);
+  }
 
   @prizmPure
   public getIconVariants(...templates: TemplateRef<unknown>[]): ReadonlyArray<PolymorphContent | null> {

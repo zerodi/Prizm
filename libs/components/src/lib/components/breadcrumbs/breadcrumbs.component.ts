@@ -15,14 +15,16 @@ import {
   ViewChildren,
 } from '@angular/core';
 import { IBreadcrumb } from './breadcrumb.interface';
-import { animationFrameScheduler, BehaviorSubject, merge, Subject } from 'rxjs';
-import { PrizmDestroyService } from '@prizm-ui/helpers';
+import { animationFrameScheduler, asyncScheduler, BehaviorSubject, merge, Subject } from 'rxjs';
+import { PrizmDestroyService, prizmEmptyQueryList } from '@prizm-ui/helpers';
 import { debounceTime, observeOn, takeUntil, tap } from 'rxjs/operators';
 import { PrizmAbstractTestId } from '../../abstract/interactive';
 import { PrizmBreadcrumbDirective } from './breadcrumbs.directive';
 import { CommonModule } from '@angular/common';
-import { PrizmIconModule } from '../icon';
 import { PrizmDropdownHostModule } from '../dropdowns/dropdown-host';
+import { PrizmIconsFullComponent } from '@prizm-ui/icons';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
+import { prizmIconsChevronRight } from '@prizm-ui/icons/full/source';
 
 @Component({
   selector: 'prizm-breadcrumbs',
@@ -31,12 +33,7 @@ import { PrizmDropdownHostModule } from '../dropdowns/dropdown-host';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [PrizmDestroyService],
   standalone: true,
-  imports: [
-    CommonModule,
-    // TODO !ng16 change all icon module to svg module
-    PrizmIconModule,
-    PrizmDropdownHostModule,
-  ],
+  imports: [CommonModule, PrizmDropdownHostModule, PrizmIconsFullComponent],
 })
 export class PrizmBreadcrumbsComponent<Breadcrumb extends IBreadcrumb>
   extends PrizmAbstractTestId
@@ -55,8 +52,10 @@ export class PrizmBreadcrumbsComponent<Breadcrumb extends IBreadcrumb>
   @Output() public breadcrumbChange: EventEmitter<Breadcrumb> = new EventEmitter();
   @ViewChild('container', { static: true }) public containerRef!: ElementRef;
   @ViewChild('breadcrumbsFake', { static: true }) public fakeBreadcrumbContainer!: ElementRef;
-  @ViewChildren('breadcrumb', { read: ElementRef }) public breadcrumbsList!: QueryList<ElementRef>;
-  @ContentChildren(PrizmBreadcrumbDirective) public breadcrumbsItem!: QueryList<PrizmBreadcrumbDirective>;
+  @ViewChildren('breadcrumb', { read: ElementRef }) public breadcrumbsList: QueryList<ElementRef> =
+    prizmEmptyQueryList();
+  @ContentChildren(PrizmBreadcrumbDirective) public breadcrumbsItem: QueryList<PrizmBreadcrumbDirective> =
+    prizmEmptyQueryList();
 
   public breadcrumbs$: BehaviorSubject<Breadcrumb[]> = new BehaviorSubject<Breadcrumb[]>([]);
   public breadcrumbsToShow$: BehaviorSubject<Breadcrumb[]> = new BehaviorSubject<Breadcrumb[]>([]);
@@ -73,8 +72,14 @@ export class PrizmBreadcrumbsComponent<Breadcrumb extends IBreadcrumb>
   private resizeObserver!: ResizeObserver;
   private mutationDetector$: Subject<void> = new Subject<void>();
 
-  constructor(private readonly cdRef: ChangeDetectorRef, private readonly destroy: PrizmDestroyService) {
+  constructor(
+    private icon: PrizmIconsFullRegistry,
+    private readonly cdRef: ChangeDetectorRef,
+    private readonly destroy: PrizmDestroyService
+  ) {
     super();
+
+    this.icon.registerIcons(prizmIconsChevronRight);
   }
 
   public changeBreadcrumb(idx: number): void {
@@ -107,8 +112,10 @@ export class PrizmBreadcrumbsComponent<Breadcrumb extends IBreadcrumb>
       })
     );
 
-    merge($breadcrumbsChange, $mutation)
-      .pipe(debounceTime(200), takeUntil(this.destroy))
+    const $templateChage = this.breadcrumbsItem.changes.pipe(observeOn(animationFrameScheduler));
+
+    merge($breadcrumbsChange, $mutation, $templateChage)
+      .pipe(observeOn(asyncScheduler), takeUntil(this.destroy))
       .subscribe(() => this.cdRef.detectChanges());
   }
 

@@ -1,5 +1,6 @@
 <div
   class="accordion"
+  #container
   [class.accordion_expanded]="isExpanded"
   [class.accordion_disabled]="disabled"
   [class.accordion_focused]="isAccordionFocused"
@@ -16,11 +17,17 @@
     <ng-container *ngIf="icon">
       <ng-container *polymorphOutlet="icon as content; context: data">
         <!-- TODO add type string-->
-        <prizm-icon class="header-icon" [iconClass]="$any(content)" size="16"></prizm-icon>
+        <prizm-icons class="header-icon" [name]="$any(content)" size="16"></prizm-icons>
       </ng-container>
     </ng-container>
-    <div class="title" *ngIf="title">
-      <ng-container *polymorphOutlet="title as content; context: data">
+    <div
+      class="title"
+      #elem
+      *ngIf="_title"
+      [prizmHint]="_title"
+      [prizmHintCanShow]="prizmIsTextOverflow(elem)"
+    >
+      <ng-container *polymorphOutlet="_title as content; context: data">
         {{ content }}
       </ng-container>
     </div>
@@ -36,6 +43,7 @@
     <div class="btn-wrapper">
       <button
         class="accordion__button"
+        [class.accordion_expanded__button]="isExpanded"
         [icon]="'chevrons-double-down'"
         [disabled]="disabled"
         prizmIconButton

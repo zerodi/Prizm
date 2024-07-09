@@ -18,7 +18,7 @@ import { PrizmInputCommonModule } from '../common';
       [interactive]="true"
       [disabled]="!!carousel.carouselContent?.controlsState?.stepleftCtrlDisabled"
       (click)="carousel.stepLeft()"
-      prizmInputIconButton="chevrons-left"
+      prizmInputIconButton="chevron-left"
     ></button>
   `,
   styles: [
@@ -26,6 +26,7 @@ import { PrizmInputCommonModule } from '../common';
       :host {
         display: flex;
         align-items: center;
+        height: 100%;
       }
     `,
   ],

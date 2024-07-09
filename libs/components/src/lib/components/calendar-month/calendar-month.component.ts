@@ -27,14 +27,13 @@ import { prizmI18nInitWithKey } from '../../services';
 import { CommonModule } from '@angular/common';
 import {
   PrizmFocusableModule,
-  PrizmHoveredModule,
+  PrizmHoveredDirective,
   PrizmPressedModule,
   PrizmStopPropagationModule,
 } from '../../directives';
-import { PrizmPrimitiveSpinButtonModule, PrizmPrimitiveYearPickerModule } from '../internal';
-import { PrizmScrollbarModule } from '../scrollbar';
-import { PrizmLinkModule } from '../link';
-import { PrizmLetModule } from '@prizm-ui/helpers';
+import { PrizmPrimitiveSpinButtonModule, PrizmPrimitiveYearPickerComponent } from '../internal';
+import { PrizmScrollbarComponent } from '../scrollbar';
+import { PrizmLetDirective } from '@prizm-ui/helpers';
 
 const TODAY = PrizmDay.currentLocal();
 
@@ -46,12 +45,11 @@ const TODAY = PrizmDay.currentLocal();
   imports: [
     CommonModule,
     PrizmStopPropagationModule,
-    PrizmPrimitiveYearPickerModule,
+    PrizmPrimitiveYearPickerComponent,
     PrizmPrimitiveSpinButtonModule,
-    PrizmScrollbarModule,
-    PrizmLinkModule,
-    PrizmLetModule,
-    PrizmHoveredModule,
+    PrizmScrollbarComponent,
+    PrizmLetDirective,
+    PrizmHoveredDirective,
     PrizmPressedModule,
     PrizmFocusableModule,
   ],
@@ -182,7 +180,7 @@ export class PrizmCalendarMonthComponent
     }
 
     if (!value.isSingleMonth) {
-      return value.from.monthSameOrBefore(month) && value.to.monthAfter(month);
+      return value.from.monthSameOrBefore(month) && value.to.monthSameOrAfter(month);
     }
 
     if (hoveredItem === null) {

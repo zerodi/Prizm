@@ -121,3 +121,35 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
+
+.pagination-btn() {
+  border: none;
+  background: none;
+  outline: none;
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  text-align: left;
+  cursor: pointer;
+
+  font-family: Inter;
+  font-size: 14px;
+  font-weight: 400;
+
+  color: var(--prizm-text-icon-secondary);
+
+  &:hover:not(.active):not(:active):not(:disabled) {
+    background-color: var(--prizm-button-ghost-hover);
+    border-radius: 2px;
+  }
+
+  &:active,
+  &.active {
+    color: var(--prizm-button-primary-solid-active);
+  }
+
+  &:disabled {
+    pointer-events: none;
+    cursor: default;
+  }
+}

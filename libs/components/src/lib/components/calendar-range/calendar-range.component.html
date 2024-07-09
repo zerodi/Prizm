@@ -42,7 +42,7 @@
     <prizm-data-list
       class="z-menu"
       [style.--prizm-data-list-border]="0"
-      [style.--prizm-data-list-border-left]="'1px solid var(--prizm-border-widget)'"
+      [style.--prizm-data-list-border-left]="'1px solid var(--prizm-background-stroke)'"
       role="menu"
       automation-id="prizm-calendar-range__menu"
     >
@@ -62,10 +62,14 @@
       >
         <div class="btn-content">
           <span>{{ item }}</span>
-          <prizm-icon
+          <!--          <prizm-icon-->
+          <!--            [style.visibility]="isItemActive(item) ? '' : 'hidden'"-->
+          <!--            iconClass="selection-check-simple"-->
+          <!--          ></prizm-icon>-->
+          <prizm-icons-full
             [style.visibility]="isItemActive(item) ? '' : 'hidden'"
-            iconClass="selection-check-simple"
-          ></prizm-icon>
+            name="check"
+          ></prizm-icons-full>
         </div>
       </button>
     </prizm-data-list>

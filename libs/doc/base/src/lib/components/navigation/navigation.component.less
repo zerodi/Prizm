@@ -10,7 +10,7 @@
   display: flex;
   flex-direction: column;
   text-align: center;
-  background: var(--prizm-doc-navigation-background, var(--prizm-palette-g13));
+  background: var(--prizm-doc-navigation-background, var(--prizm-palette-gray-h50-dark));
 }
 
 .t-input {
@@ -92,7 +92,7 @@
 
 .t-navigation {
   --tui-text-01: var(--prizm-doc-section-color, white);
-  --tui-text-02: var(--prizm-doc-link-color, var(--prizm-palette-g5));
+  --tui-text-02: var(--prizm-doc-link-color, var(--prizm-palette-gray-h750-dark));
 }
 
 .t-chevron {
@@ -106,19 +106,17 @@
   }
 }
 
-.deprecated-label {
-  background-color: red;
+.deprecated {
+  --prizm-chips-item-background: var(--prizm-status-alarm-primary-default);
+  --prizm-chips-item-color: var(--prizm-text-icon-exception);
 }
 
-.new-label,
-.deprecated-label {
-  font-size: 12px;
-  border-radius: 5px;
-  padding: 1px 4px;
-
-  color: white;
+.new {
+  --prizm-chips-item-background: var(--prizm-status-info-primary-default);
+  --prizm-chips-item-color: var(--prizm-text-icon-exception);
 }
 
-.new-label {
-  background-color: yellow;
+.preview {
+  --prizm-chips-item-background: var(--prizm-status-warning-primary-default);
+  --prizm-chips-item-color: var(--prizm-text-icon-primary);
 }

@@ -36,7 +36,7 @@ export interface PrizmSelectOptions<T> {
   readonly nullContent: PolymorphContent;
   readonly searchMatcher: PrizmSelectSearchMatcher<T>;
   readonly identityMatcher: PrizmSelectIdentityMatcher<T>;
-  readonly transformer: PrizmSelectValueTransformver<T>;
+  readonly transformer: PrizmSelectValueTransformver<T, unknown>;
   readonly minDropdownHeight: number;
   /**
    * @deprecated
@@ -58,7 +58,7 @@ export const PRIZM_SELECT_DEFAULT_OPTIONS: PrizmSelectOptions<unknown> = {
   searchable: false,
   outer: false,
   search: null,
-  icon: 'chevrons-dropdown',
+  icon: 'triangle-down',
 
   forceClear: null,
   dropdownWidth: '100%',
@@ -83,7 +83,6 @@ export const PRIZM_SELECT_DEFAULT_OPTIONS: PrizmSelectOptions<unknown> = {
   listItemTemplate: null as any,
   placeholder: '',
   size: 'l',
-  label: 'Выберите из списка',
 };
 
 export const PRIZM_SELECT_OPTIONS = new InjectionToken<PrizmSelectOptions<unknown>>(

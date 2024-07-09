@@ -18,6 +18,29 @@ import { PrizmDecimal } from '@prizm-ui/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class InputNumberExampleComponent {
+  readonly layoutKey = 'PrizmInputLayoutComponent';
+  public readOnly = false;
+  public border = true;
+  public inputPosition: PrizmInputPosition = 'left';
+  public inputPositionVariants: PrizmInputPosition[] = ['left', 'center'];
+
+  outer = false;
+  get sizeVariants(): ReadonlyArray<PrizmInputSize> {
+    return this.outer ? ['s', 'm', 'l'] : ['m', 'l'];
+  }
+  size = this.sizeVariants[0];
+  forceClearVariants: ReadonlyArray<boolean | null> = [null, false, true];
+  forceClear = this.forceClearVariants[0];
+
+  public hideClearButtonHint: boolean | null = null;
+  public hideHintVariants: ReadonlyArray<boolean | null> = [null, false, true];
+
+  emptyContent = 'Ничего не найдено';
+  nullContent = 'Не выбрано';
+  minDropdownHeight = 0;
+  maxDropdownHeight = 342;
+  title = '';
+
   value = 1;
   public requiredInputControl = new UntypedFormControl('', Validators.required);
   public min = 0;
@@ -33,11 +56,7 @@ export class InputNumberExampleComponent {
   public label = 'Заголовок';
   public placeholder = '';
 
-  public inputPosition: PrizmInputPosition = 'left';
   public inputPositions: PrizmInputPosition[] = ['left', 'center'];
-  public outer!: false;
-
-  public size: PrizmInputSize = 'l';
   public sizesOuter: PrizmInputSize[] = ['l', 'm', 's'];
   public sizesInner: PrizmInputSize[] = ['l', 'm'];
 
@@ -54,6 +73,10 @@ export class InputNumberExampleComponent {
   public readonly prizmInputNumberBasic: TuiDocExample = {
     TypeScript: import('./examples/input-number-basic-example/input-number-basic-example.component.ts?raw'),
     HTML: import('./examples/input-number-basic-example/input-number-basic-example.component.html?raw'),
+  };
+  public readonly prizmInputNumberDisabled: TuiDocExample = {
+    TypeScript: import('./examples/disabled-example/input-number-disabled-example.component.ts?raw'),
+    HTML: import('./examples/disabled-example/input-number-disabled-example.component.html?raw'),
   };
 
   public readonly prizmInputNumberCounter: TuiDocExample = {
@@ -75,6 +98,13 @@ export class InputNumberExampleComponent {
       './examples/input-number-invalid-example/input-number-invalid-example.component.ts?raw'
     ),
     HTML: import('./examples/input-number-invalid-example/input-number-invalid-example.component.html?raw'),
+  };
+
+  public readonly prizmInputNumberMinMax: TuiDocExample = {
+    TypeScript: import(
+      './examples/input-number-min-max-example/input-number-min-max-example.component.ts?raw'
+    ),
+    HTML: import('./examples/input-number-min-max-example/input-number-min-max-example.component.html?raw'),
   };
 
   readonly setupModule: RawLoaderContent = import('./examples/setup-module.md?raw');

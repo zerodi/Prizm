@@ -16,22 +16,40 @@ import {
 } from '@angular/core';
 import { PrizmTabSize } from './tabs.interface';
 import { animationFrameScheduler, Subject, Subscription } from 'rxjs';
-import { debounceTime, observeOn, takeUntil, tap } from 'rxjs/operators';
+import { debounceTime, observeOn, skip, takeUntil, tap } from 'rxjs/operators';
 import { PrizmTabsService } from './tabs.service';
 import { PrizmTabComponent } from './components/tab.component';
 import { PrizmTabMenuItemDirective } from './tab-menu-item.directive';
 import { PrizmDropdownHostComponent } from '../dropdowns/dropdown-host';
-import { PrizmCallFuncPipe, PrizmDestroyService, PrizmLetDirective } from '@prizm-ui/helpers';
+import {
+  PrizmCallFuncPipe,
+  PrizmDestroyService,
+  prizmEmptyQueryList,
+  PrizmLetDirective,
+} from '@prizm-ui/helpers';
 import { PrizmTabCanOpen } from './tabs.model';
 import { PrizmAbstractTestId } from '../../abstract/interactive';
 import { CommonModule } from '@angular/common';
 import {
   PolymorphOutletDirective,
   PrizmDropdownControllerModule,
-  PrizmLifecycleModule,
+  PrizmHintDirective,
+  PrizmLifecycleDirective,
 } from '../../directives';
-import { PrizmButtonModule } from '../button';
+import { PrizmButtonComponent } from '../button';
 import { PrizmDataListComponent } from '../data-list';
+import { PrizmListingItemComponent } from '../listing-item';
+import { PrizmCounterComponent } from '../counter';
+import { PrizmIconTabsPipe } from './pipes/icon-tabs.pipe';
+import { prizmIsTextOverflow$ } from '../../util';
+import { PrizmIconsFullComponent } from '@prizm-ui/icons';
+import { PrizmIconsFullRegistry } from '@prizm-ui/icons/core';
+import {
+  prizmIconsAngleLeft,
+  prizmIconsAngleLeftRight,
+  prizmIconsEllipsisV,
+  prizmIconsXmark,
+} from '@prizm-ui/icons/full/source';
 
 @Component({
   selector: 'prizm-tabs',
@@ -43,19 +61,25 @@ import { PrizmDataListComponent } from '../data-list';
   imports: [
     CommonModule,
     PolymorphOutletDirective,
-    PrizmLifecycleModule,
+    PrizmLifecycleDirective,
     PrizmDropdownHostComponent,
     PrizmCallFuncPipe,
     PrizmLetDirective,
-    PrizmButtonModule,
+    PrizmButtonComponent,
     PrizmDropdownControllerModule,
     PrizmDataListComponent,
     PrizmTabComponent,
+    PrizmListingItemComponent,
+    PrizmCounterComponent,
+    PrizmIconTabsPipe,
+    PrizmHintDirective,
+    PrizmIconsFullComponent,
   ],
 })
 export class PrizmTabsComponent extends PrizmAbstractTestId implements OnInit, OnDestroy {
   @Input() @HostBinding('attr.data-size') public size: PrizmTabSize = 'adaptive';
   @Input() public set activeTabIndex(idx: number) {
+    this.activeTabIndexLastChanged = idx;
     if (idx === this.tabsService.activeTabIdx) return;
     this.tabsService.updateActiveTab(idx);
   }
@@ -69,14 +93,17 @@ export class PrizmTabsComponent extends PrizmAbstractTestId implements OnInit, O
   get canOpen() {
     return this.tabsService.canOpenTab;
   }
+  private activeTabIndexLastChanged: number | null = null;
   @Output() readonly activeTabIndexChange: EventEmitter<number> = new EventEmitter<number>();
   @ViewChild('tabsContainer', { static: true }) public tabsContainer!: ElementRef;
   @ViewChild('tabsDropdown', { static: true }) public tabsDropdown!: PrizmDropdownHostComponent;
   public tabsMoreDropdown!: PrizmDropdownHostComponent;
+
   @ContentChildren(PrizmTabComponent, { descendants: true })
-  public tabElements!: QueryList<PrizmTabComponent>;
+  public tabElements: QueryList<PrizmTabComponent> = prizmEmptyQueryList();
+
   @ContentChildren(PrizmTabMenuItemDirective, { read: TemplateRef, descendants: true })
-  public menuElements!: QueryList<TemplateRef<PrizmTabComponent>>;
+  public menuElements: QueryList<TemplateRef<PrizmTabComponent>> = prizmEmptyQueryList();
 
   override readonly testId_ = 'ui_tabs';
 
@@ -86,6 +113,8 @@ export class PrizmTabsComponent extends PrizmAbstractTestId implements OnInit, O
   public isLeftBtnActive = false;
   public isRightBtnActive = false;
 
+  readonly prizmIsTextOverflow$ = prizmIsTextOverflow$;
+
   private mutationObserver!: MutationObserver;
   private resizeObserver!: ResizeObserver;
   private mutationDetector$: Subject<void> = new Subject<void>();
@@ -93,11 +122,18 @@ export class PrizmTabsComponent extends PrizmAbstractTestId implements OnInit, O
 
   constructor(
     private readonly cdRef: ChangeDetectorRef,
-    private readonly elRef: ElementRef,
+    private readonly iconsFullRegistry: PrizmIconsFullRegistry,
     private readonly destroy$: PrizmDestroyService,
     private readonly tabsService: PrizmTabsService
   ) {
     super();
+
+    this.iconsFullRegistry.registerIcons(
+      prizmIconsXmark,
+      prizmIconsEllipsisV,
+      prizmIconsAngleLeft,
+      prizmIconsAngleLeftRight
+    );
   }
 
   public ngOnInit(): void {
@@ -122,6 +158,8 @@ export class PrizmTabsComponent extends PrizmAbstractTestId implements OnInit, O
   private initTabClickListener(): void {
     this.tabsService.activeTabIdx$
       .pipe(
+        skip(1),
+        debounceTime(0),
         tap(idx => {
           this.tabClickHandler(idx);
         }),
@@ -138,7 +176,8 @@ export class PrizmTabsComponent extends PrizmAbstractTestId implements OnInit, O
   }
 
   public tabClickHandler(idx: number): void {
-    this.activeTabIndex = idx;
+    if (this.activeTabIndexLastChanged === idx) return;
+    this.activeTabIndex = this.activeTabIndexLastChanged = idx;
     this.activeTabIndexChange.emit(this.activeTabIndex);
     this.focusTabByIdx(idx);
   }
@@ -212,7 +251,8 @@ export class PrizmTabsComponent extends PrizmAbstractTestId implements OnInit, O
     this.reCalculatePositions();
   }
 
-  public clickTab(): void {
+  public clickTab(index: number): void {
     this.openLeft = this.openRight = false;
+    this.tabClickHandler(index);
   }
 }

@@ -9,24 +9,23 @@
 
   .panel {
     height: var(--prizm-panel-height, 48px);
+    padding: 0px 16px;
     display: flex;
-    border-bottom: 1px solid var(--prizm-panel-border-bottom, var(--prizm-v3-background-stroke));
-    border-radius: var(--prizm-panel-border-radius, 2px);
-    background: var(--prizm-panel-background, var(--prizm-v3-background-fill-panel));
+    border-bottom: 1px solid var(--prizm-panel-border-bottom, var(--prizm-background-stroke));
+    border-radius: var(--prizm-panel-border-radius, 0px);
+    background: var(--prizm-panel-background, var(--prizm-background-fill-panel));
 
     .back-btn-wrapper {
-      padding: 0 0 0 16px;
-      margin: auto 12px auto 0px;
+      margin: auto 8px auto 0px;
 
-      border-right: 1px solid var(--prizm-v3-background-stroke);
+      border-right: 1px solid var(--prizm-background-stroke);
 
       button {
-        margin-right: 12px;
+        margin-right: 8px;
       }
     }
 
     .title {
-      margin: 0 12px;
       min-width: 15%;
 
       flex: 1;
@@ -51,7 +50,7 @@
         line-height: 20px;
         font-weight: 600;
 
-        color: var(--prizm-v3-text-icon-primary);
+        color: var(--prizm-text-icon-primary);
       }
 
       &__sub {
@@ -59,12 +58,11 @@
         line-height: 16px;
         font-weight: 400;
 
-        color: var(---prizm-v3-text-icon-tertiary);
+        color: var(---prizm-text-icon-tertiary);
       }
     }
 
     .header {
-      padding-right: 15px;
       flex: 1;
       display: flex;
 
@@ -79,17 +77,20 @@
 
     .buttons {
       display: flex;
-
-      &:not(:empty) {
-        margin-right: 12px;
-      }
+      margin-right: 12px;
     }
 
     .instruments {
       margin-left: auto;
-
+      padding-left: 8px;
+      padding-right: 4px;
       display: flex;
       overflow: hidden;
+    }
+
+    .buttons:empty,
+    .instruments:empty {
+      display: none;
     }
   }
 }
