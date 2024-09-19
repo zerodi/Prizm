@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.3.8](https://github.com/zyfra/Prizm) (12-08-2024)
+
+### Bug fixes
+
+- fix(components/multiselect): usage with transformers should cover case with selectAll option #1919
+- fix(components/file-upload): emit events for clear files fix #1848
+- fix(components/tabs): template usage for tabs listing #1859
+- fix(components/input-month): icon button should be hidden in disabled forms #1728
+- fix(components/input-password): icon button should be hidden in disabled forms #1727
+- fix(chore): moved required deps to dependencies group #1861
+- docs(sidebar): added logger for easy check #1933
+- fix(components/style): devided styles to location and declare #1412
+
+### Special Thanks:
+
+- @zerodi
+- @ickisIckis
+- @ZurabDev
+- @alexhawkins94
+
 ## [4.3.7](https://github.com/zyfra/Prizm) (25-07-2024)
 
 ### Bug fixes
@@ -24,6 +44,7 @@ All notable changes to this project will be documented in this file.
 - fix(components/input-number): bug where empty state was not toggled when clearing https://github.com/zyfra/Prizm/issues/1684
 - fix(components/input-text): incorrect behavior occurring in PrizmInputComponent when NgxMaskDirective is applied and the value changes from an empty state. https://github.com/zyfra/Prizm/issues/1190
 - fix(components/tab): add correct icon name to registry for right arrow #1860
+- fix(components/tree): incorrect markup fix #1742 Note: markup is update can affect tree component in project
 
 ### Refactor
 
